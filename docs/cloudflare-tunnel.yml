@@ -1,0 +1,14 @@
+# Konfigurasi Cloudflare Tunnel (Contoh / Rekomendasi)
+# Domain frontend / API yang digunakan sesuai PRD:
+# API Backend: https://api-waste.latech.web.id (atau port FastAPI lokal)
+# Website: https://smart-waste.latech.web.id
+
+tunnel: smart-waste-tunnel
+credentials-file: /root/.cloudflared/smart-waste.json
+
+ingress:
+  - hostname: api-waste.latech.web.id
+    service: http://localhost:8000
+  - hostname: smart-waste.latech.web.id
+    service: http://localhost:3000
+  - service: http_status:404
