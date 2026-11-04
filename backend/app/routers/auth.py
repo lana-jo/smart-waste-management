@@ -16,6 +16,12 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from app.auth_helpers import (
+    _clear_auth_cookie,
+    _issue_login,
+    _set_auth_cookie,
+    _verifies_current_password,
+)
 from app.config import get_settings
 from app.database import get_db
 from app.deps import bearer_scheme, get_current_user, get_raw_token
@@ -23,7 +29,6 @@ from app.models import User
 from app.rate_limit import limiter
 from app.schemas import RegisterIn, Token, UserOut, UserProfileUpdate
 from app.security import (
-    AUTH_COOKIE_NAME,
     create_access_token,
     decode_token,
     hash_password,
@@ -41,43 +46,6 @@ WRONG_CREDENTIALS_MESSAGE = "Email atau password salah."
 DUPLICATE_EMAIL_MESSAGE = "Email sudah terdaftar. Gunakan email lain untuk mendaftar."
 REAUTH_MESSAGE = "Password saat ini tidak sesuai. Periksa kembali kata sandi Anda."
 LOGOUT_MESSAGE = "Logout berhasil."
-
-
-def _set_auth_cookie(response: Response, token: str) -> None:
-    response.set_cookie(
-        AUTH_COOKIE_NAME,
-        token,
-        max_age=settings.access_token_expire_minutes * 60,
-        path="/",
-        httponly=True,
-        secure=settings.cookie_secure,
-        samesite="lax",
-    )
-
-
-def _clear_auth_cookie(response: Response) -> None:
-    response.delete_cookie(
-        AUTH_COOKIE_NAME,
-        path="/",
-        httponly=True,
-        secure=settings.cookie_secure,
-        samesite="lax",
-    )
-
-
-def _allowed_origins() -> list[str]:
-    return settings.cors_origin_list or ["http://localhost:3000"]
-
-
-def _issue_login(request: Request, response: Response, user: User) -> Token:
-    token = create_access_token(user.id, user.role)
-    _set_auth_cookie(response, token)
-    origin = request.headers.get("origin")
-    if origin in _allowed_origins():
-        # Web: token hanya di cookie, body tanpa access_token.
-        return Token(user=UserOut.model_validate(user))
-    # Mobile/native: sertakan access_token di body.
-    return Token(access_token=token, user=UserOut.model_validate(user))
 
 
 @router.post(
@@ -196,12 +164,6 @@ def logout(
     finally:
         _clear_auth_cookie(response)
     return {"message": LOGOUT_MESSAGE}
-
-
-def _verifies_current_password(payload: UserProfileUpdate, current_user: User) -> bool:
-    return payload.current_password is not None and verify_password(
-        payload.current_password, current_user.password_hash
-    )
 
 
 @router.get("/me", response_model=UserOut)
