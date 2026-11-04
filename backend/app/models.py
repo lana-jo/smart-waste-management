@@ -35,6 +35,7 @@ class User(Base):
         nullable=False,
         server_default=text("CURRENT_TIMESTAMP"),
     )
+    is_deleted: Mapped[bool] = mapped_column(nullable=False, server_default="false")
 
     reports: Mapped[list["WasteReport"]] = relationship(back_populates="user")
 

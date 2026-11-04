@@ -26,18 +26,27 @@ ADMIN_DELETE_MESSAGE = "Akun admin tidak dapat dihapus."
 
 def count_admins(db: Session) -> int:
     return int(
-        db.scalar(select(func.count()).select_from(User).where(User.role == "admin"))
+        db.scalar(
+            select(func.count())
+            .select_from(User)
+            .where(User.role == "admin", User.is_deleted.is_(False))
+        )
         or 0
     )
 
 
 def find_user(db: Session, user_id: uuid.UUID) -> User | None:
-    return db.scalar(select(User).where(User.id == user_id))
+    return db.scalar(select(User).where(User.id == user_id, User.is_deleted.is_(False)))
 
 
 @router.get("", response_model=list[UserOut])
-def list_users(db: Session = Depends(get_db)) -> list[User]:
-    return list(db.scalars(select(User).order_by(User.created_at.desc())).all())
+def list_users(
+    include_deleted: bool = False, db: Session = Depends(get_db)
+) -> list[User]:
+    query = select(User).order_by(User.created_at.desc())
+    if not include_deleted:
+        query = query.where(User.is_deleted.is_(False))
+    return list(db.scalars(query).all())
 
 
 @router.post("", response_model=UserOut, status_code=201)
@@ -77,6 +86,11 @@ def update_user(
     if target_user is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=NOT_FOUND_MESSAGE
+        )
+    if target_user.id == admin.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Anda tidak dapat mengelola akun Anda sendiri.",
         )
 
     if payload.email is not None:
@@ -146,7 +160,7 @@ def remove_user(
         select(WasteReport.image_url).where(WasteReport.user_id == target_user.id)
     ).all()
 
-    db.delete(target_user)
+    target_user.is_deleted = True
     db.commit()
     for image_url in reported_image_urls:
         delete_report_image(image_url)

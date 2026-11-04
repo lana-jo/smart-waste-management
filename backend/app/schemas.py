@@ -31,6 +31,7 @@ class UserOut(BaseModel):
     email: str
     role: str
     created_at: datetime
+    is_deleted: bool = False
 
 
 class Token(BaseModel):
