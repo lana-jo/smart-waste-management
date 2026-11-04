@@ -1,115 +1,172 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
+import { RefreshCcw, AlertCircle, FileText, CheckCircle2, Loader2 } from "lucide-react";
+import { apiFetch } from "../lib/api";
+import { useAuth } from "../lib/auth-context";
+import { ReportTable, type ReportItem } from "./report-table";
+import { ReportFilters } from "./report-filters";
+
+interface ReportPage {
+  items: ReportItem[];
+  total: number;
+  limit: number;
+  offset: number;
+}
 
 export default function ReportsManagementPage() {
-  const [reports, setReports] = useState<any[]>([]);
+  const { token, role, isLoading: authLoading } = useAuth();
+  const router = useRouter();
+  const [reports, setReports] = useState<ReportItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [search, setSearch] = useState("");
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [statusError, setStatusError] = useState<string | null>(null);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
+
+  const loadReports = useCallback(async () => {
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      const params = new URLSearchParams();
+      if (filterStatus) params.set("status", filterStatus);
+      if (search) params.set("search", search);
+      params.set("limit", "50");
+      params.set("offset", "0");
+
+      const data: ReportPage = await apiFetch<ReportPage>(`/api/reports?${params.toString()}`);
+      setReports(data.items);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Gagal memuat daftar laporan. Silakan coba lagi.");
+    } finally {
+      setLoading(false);
+    }
+  }, [token, filterStatus, search, router]);
 
   useEffect(() => {
-    // Simulasi fetch laporan sesuai PRD
-    setTimeout(() => {
-      setReports([
-        {
-          id: "rep-1",
-          category: "Plastic Waste",
-          confidence: 0.95,
-          description: "Tumpukan botol plastik di dekat halte bus utama.",
-          status: "Pending",
-          created_at: "2026-11-01 10:00"
-        },
-        {
-          id: "rep-2",
-          category: "Organic Waste",
-          confidence: 0.89,
-          description: "Sampah sisa sayuran dan daun kering di sudut pasar.",
-          status: "In Progress",
-          created_at: "2026-11-01 09:30"
-        },
-        {
-          id: "rep-3",
-          category: "Paper Waste",
-          confidence: 0.92,
-          description: "Kardus bekas dan tumpukan kertas berserakan di trotoar.",
-          status: "Completed",
-          created_at: "2026-10-31 15:20"
-        }
-      ]);
-      setLoading(false);
-    }, 200);
-  }, []);
+    if (authLoading) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount; setState terjadi setelah await, bukan sinkron.
+    void loadReports();
+  }, [authLoading, loadReports]);
 
-  const filteredReports = filterStatus
-    ? reports.filter((r) => r.status === filterStatus)
-    : reports;
+  const handleStatusChange = async (reportId: string, status: string) => {
+    setUpdatingId(reportId);
+    setStatusError(null);
+    setStatusMessage(null);
+    try {
+      await apiFetch<ReportItem>(`/api/reports/${reportId}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      setStatusMessage("Status laporan berhasil diperbarui.");
+      await loadReports();
+    } catch (err) {
+      setStatusError(err instanceof Error ? err.message : "Gagal memperbarui status laporan. Silakan coba lagi.");
+    } finally {
+      setUpdatingId(null);
+    }
+  };
 
-  if (loading) return <div className="p-8 text-stone-500">Memuat daftar laporan...</div>;
+  const isAdmin = role === "admin";
+
+  if (authLoading || (loading && reports.length === 0)) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh] text-stone-500 gap-2" role="status">
+        <Loader2 className="animate-spin" size={20} />
+        <span>Memuat daftar laporan warga...</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-md mx-auto mt-12 p-6 bg-white border border-stone-200 rounded-xl shadow-xs text-center space-y-4">
+        <div className="w-12 h-12 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mx-auto">
+          <AlertCircle size={24} />
+        </div>
+        <div>
+          <h2 className="text-base font-semibold text-stone-900">Gagal Memuat Laporan</h2>
+          <p role="alert" className="text-sm text-stone-600 mt-1">{error}</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => void loadReports()}
+          className="w-full px-4 py-2.5 rounded-lg bg-emerald-700 text-white text-sm font-medium hover:bg-emerald-800 transition-colors shadow-xs"
+        >
+          Coba Lagi
+        </button>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-10">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-stone-900">Manajemen Laporan</h1>
-          <p className="text-sm text-stone-600 mt-1">Daftar laporan warga dan pembaruan status penanganan.</p>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-stone-900">Manajemen Laporan</h1>
+          <p className="text-sm text-stone-600 mt-1">Daftar laporan warga, hasil klasifikasi AI, dan pembaruan status penanganan.</p>
         </div>
-        <div className="flex items-center gap-2">
-          <select
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-            aria-label="Filter status laporan"
-            className="px-3 py-2 border border-stone-300 rounded-lg text-sm bg-white text-stone-900 focus:outline-none focus:ring-1 focus:ring-emerald-700"
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => void loadReports()}
+            className="flex items-center gap-2 px-3.5 py-2 border border-stone-300 rounded-lg text-sm font-medium text-stone-700 bg-white hover:bg-stone-50 transition-colors shadow-xs"
           >
-            <option value="">Semua Status</option>
-            <option value="Pending">Pending</option>
-            <option value="In Progress">In Progress</option>
-            <option value="Completed">Completed</option>
-            <option value="Rejected">Rejected</option>
-          </select>
+            <RefreshCcw size={16} />
+            Segarkan
+          </button>
         </div>
       </div>
 
-      <div className="bg-white border border-stone-200 rounded-lg overflow-hidden shadow-xs">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="border-b border-stone-200 bg-stone-50 text-xs font-medium text-stone-500 uppercase tracking-wider">
-              <th className="p-4">Kategori & Kepercayaan</th>
-              <th className="p-4">Deskripsi</th>
-              <th className="p-4">Status</th>
-              <th className="p-4">Waktu</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-stone-200 text-sm">
-            {filteredReports.map((r) => (
-              <tr key={r.id} className="hover:bg-stone-50/50">
-                <td className="p-4 font-medium text-stone-900">
-                  {r.category}
-                  <span className="block text-xs font-normal text-stone-500 mt-0.5">
-                    AI Conf: {(r.confidence * 100).toFixed(0)}%
-                  </span>
-                </td>
-                <td className="p-4 text-stone-700 max-w-xs truncate">{r.description}</td>
-                <td className="p-4">
-                  <span
-                    className={`inline-block px-2.5 py-1 text-xs font-medium rounded-full ${
-                      r.status === "Completed"
-                        ? "bg-emerald-100 text-emerald-800"
-                        : r.status === "In Progress"
-                        ? "bg-blue-100 text-blue-800"
-                        : r.status === "Pending"
-                        ? "bg-amber-100 text-amber-800"
-                        : "bg-rose-100 text-rose-800"
-                    }`}
-                  >
-                    {r.status}
-                  </span>
-                </td>
-                <td className="p-4 text-stone-500 text-xs">{r.created_at}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <ReportFilters
+        searchInput={searchInput}
+        setSearchInput={setSearchInput}
+        filterStatus={filterStatus}
+        setFilterStatus={setFilterStatus}
+        onSearchSubmit={(e: FormEvent) => {
+          e.preventDefault();
+          setSearch(searchInput.trim());
+        }}
+      />
+
+      {statusMessage ? (
+        <div role="status" className="p-4 bg-teal-50 border border-teal-200 text-teal-800 rounded-lg text-sm font-medium flex items-center gap-2">
+          <CheckCircle2 size={16} className="text-teal-700 shrink-0" />
+          <span>{statusMessage}</span>
+        </div>
+      ) : null}
+      {statusError ? (
+        <div role="alert" className="p-4 bg-rose-50 border border-rose-200 text-rose-800 rounded-lg text-sm font-medium flex items-center gap-2">
+          <AlertCircle size={16} className="text-rose-600 shrink-0" />
+          <span>{statusError}</span>
+        </div>
+      ) : null}
+
+      <ReportTable
+        reports={reports}
+        isAdmin={isAdmin}
+        updatingId={updatingId}
+        onStatusChange={handleStatusChange}
+      />
+
+      {reports.length === 0 ? (
+        <div className="bg-white border border-stone-200 rounded-xl p-12 text-center space-y-3">
+          <div className="w-12 h-12 rounded-full bg-stone-100 text-stone-500 flex items-center justify-center mx-auto">
+            <FileText size={24} />
+          </div>
+          <p className="text-base font-semibold text-stone-900">Belum ada laporan ditemukan</p>
+          <p className="text-sm text-stone-500">Coba ubah kata kunci pencarian atau filter status.</p>
+        </div>
+      ) : null}
     </div>
   );
 }

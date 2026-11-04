@@ -1,71 +1,104 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { AlertCircle, RefreshCcw } from "lucide-react";
+import { apiFetch } from "../lib/api";
+import { type ReportStats } from "../lib/types";
+import { useAuth } from "../lib/auth-context";
+import { DashboardStatsGrid, DashboardCharts } from "./dashboard-widgets";
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState<any>(null);
+  const { token, isLoading } = useAuth();
+  const router = useRouter();
+  const [stats, setStats] = useState<ReportStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadStats = useCallback(async () => {
+    if (!token) {
+      setLoading(false);
+      router.push("/login");
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      const data: ReportStats = await apiFetch<ReportStats>("/api/reports/stats");
+      setStats(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Gagal memuat ringkasan data. Silakan coba lagi.");
+    } finally {
+      setLoading(false);
+    }
+  }, [token, router]);
 
   useEffect(() => {
-    // Simulasi data fetch sesuai skema PRD stats
-    setTimeout(() => {
-      setStats({
-        total: 6,
-        by_status: { Pending: 2, InProgress: 1, Completed: 2, Rejected: 1 },
-        by_category: { OrganicWaste: 2, PlasticWaste: 2, PaperWaste: 2 }
-      });
-      setLoading(false);
-    }, 200);
-  }, []);
+    if (isLoading) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount; setState terjadi setelah await, bukan sinkron.
+    void loadStats();
+  }, [isLoading, loadStats]);
 
-  if (loading) return <div className="p-8 text-stone-500">Memuat data ringkasan...</div>;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh] text-stone-500 gap-2" role="status">
+        <RefreshCcw className="animate-spin" size={20} />
+        <span>Memuat data ringkasan operasional...</span>
+      </div>
+    );
+  }
 
-  const chartData = [
-    { name: "Organic Waste", count: stats.by_category.OrganicWaste },
-    { name: "Plastic Waste", count: stats.by_category.PlasticWaste },
-    { name: "Paper Waste", count: stats.by_category.PaperWaste },
-  ];
+  if (error || !stats) {
+    return (
+      <div className="max-w-md mx-auto mt-12 p-6 bg-white border border-stone-200 rounded-xl shadow-xs text-center space-y-4">
+        <div className="w-12 h-12 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mx-auto">
+          <AlertCircle size={24} />
+        </div>
+        <div>
+          <h2 className="text-base font-semibold text-stone-900">Gagal Memuat Dashboard</h2>
+          <p role="alert" className="text-sm text-stone-600 mt-1">{error ?? "Data ringkasan belum tersedia."}</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => void loadStats()}
+          className="w-full px-4 py-2.5 rounded-lg bg-emerald-700 text-white text-sm font-medium hover:bg-emerald-800 transition-colors shadow-xs"
+        >
+          Coba Lagi
+        </button>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-stone-900">Dashboard Utama</h1>
-        <p className="text-sm text-stone-600 mt-1">Ringkasan data operasional pengelolaan sampah.</p>
+    <div className="space-y-8 pb-10">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <span className="px-2.5 py-1 text-xs font-semibold rounded-md bg-emerald-50 text-emerald-800 uppercase tracking-wide">
+              Ringkasan Sistem
+            </span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-stone-900 mt-2">
+            Dashboard Utama Operasional
+          </h1>
+          <p className="text-sm text-stone-600 mt-1">
+            Analisis waktu nyata aliran laporan sampah dan performa penanganan tim lapangan.
+          </p>
+        </div>
+        <div className="flex items-center gap-3 self-start sm:self-auto">
+          <button
+            type="button"
+            onClick={() => void loadStats()}
+            className="flex items-center gap-2 px-3.5 py-2 border border-stone-300 rounded-lg text-sm font-medium text-stone-700 bg-white hover:bg-stone-50 dark:bg-stone-950 transition-colors shadow-xs"
+          >
+            <RefreshCcw size={16} />
+            Muat Ulang
+          </button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-5 bg-white border border-stone-200 rounded-lg shadow-xs">
-          <p className="text-sm text-stone-500">Total Laporan</p>
-          <p className="text-3xl font-semibold text-stone-900 mt-2">{stats.total}</p>
-        </div>
-        <div className="p-5 bg-white border border-stone-200 rounded-lg shadow-xs">
-          <p className="text-sm text-stone-500">Menunggu (Pending)</p>
-          <p className="text-3xl font-semibold text-amber-600 mt-2">{stats.by_status.Pending}</p>
-        </div>
-        <div className="p-5 bg-white border border-stone-200 rounded-lg shadow-xs">
-          <p className="text-sm text-stone-500">Selesai (Completed)</p>
-          <p className="text-3xl font-semibold text-emerald-700 mt-2">{stats.by_status.Completed}</p>
-        </div>
-        <div className="p-5 bg-white border border-stone-200 rounded-lg shadow-xs">
-          <p className="text-sm text-stone-500">Ditolak (Rejected)</p>
-          <p className="text-3xl font-semibold text-rose-600 mt-2">{stats.by_status.Rejected}</p>
-        </div>
-      </div>
-
-      <div className="bg-white border border-stone-200 rounded-lg p-6 shadow-xs">
-        <h2 className="text-base font-medium text-stone-900 mb-4">Distribusi Kategori Sampah</h2>
-        <div className="h-72 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData}>
-              <XAxis dataKey="name" stroke="#78716c" fontSize={12} />
-              <YAxis stroke="#78716c" fontSize={12} allowDecimals={false} />
-              <Tooltip />
-              <Bar dataKey="count" fill="#047857" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
+      <DashboardStatsGrid stats={stats} />
+      <DashboardCharts stats={stats} />
     </div>
   );
 }
