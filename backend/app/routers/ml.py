@@ -1,9 +1,15 @@
 import io
+import logging
 
-from fastapi import APIRouter, File, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
 from PIL import Image
 
 from app.config import get_settings
+from app.deps import get_current_user
+from app.models import User
+from app.rate_limit import limiter
+
+logger = logging.getLogger("app.ml")
 
 router = APIRouter(prefix="/api/ml", tags=["Machine Learning"])
 settings = get_settings()
@@ -24,13 +30,20 @@ try:
     try:
         model = load_model(MODEL_PATH)
     except Exception:
+        logger.exception("gagal memuat model ML")
         model = None
 except Exception:
+    logger.exception("dependensi ML tidak tersedia")
     model = None
 
 
 @router.post("/predict")
-async def predict_waste(file: UploadFile = File(...)):
+@limiter.limit("30/minute")
+async def predict_waste(
+    request: Request,
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+):
     if model is None or np is None or img_to_array is None:
         raise HTTPException(status_code=503, detail="Model belum dimuat.")
 

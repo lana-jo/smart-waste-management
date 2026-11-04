@@ -34,7 +34,7 @@ class UserOut(BaseModel):
 
 
 class Token(BaseModel):
-    access_token: str
+    access_token: str | None = None
     token_type: str = "bearer"
     user: UserOut
 
@@ -91,6 +91,13 @@ class UserAdminUpdate(BaseModel):
     email: EmailStr | None = None
     password: str | None = Field(None, min_length=8, max_length=72)
     role: UserRole | None = None
+
+
+class UserProfileUpdate(BaseModel):
+    name: str | None = Field(None, min_length=1, max_length=100)
+    email: EmailStr | None = None
+    password: str | None = Field(None, min_length=8, max_length=72)
+    current_password: str | None = None
 
 
 class ReportUpdateFields(BaseModel):

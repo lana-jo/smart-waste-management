@@ -42,3 +42,14 @@ CREATE TRIGGER trg_reports_updated_at
 BEFORE UPDATE ON waste_reports
 FOR EACH ROW
 EXECUTE FUNCTION set_updated_at();
+
+CREATE TABLE IF NOT EXISTS revoked_tokens (
+    jti UUID PRIMARY KEY,
+    user_id UUID NULL,
+    expires_at TIMESTAMPTZ NOT NULL,
+    effective_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    revoked_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_revoked_tokens_expires_at
+    ON revoked_tokens(expires_at);

@@ -15,10 +15,38 @@ class Settings(BaseSettings):
     database_url: str
     jwt_secret: str
     jwt_algorithm: str = "HS256"
-    access_token_expire_minutes: int = 1440
+    access_token_expire_minutes: int = 45
     upload_dir: str = "uploads"
+
+    # Sesi cookie: TTL pendek, diperbarui oleh POST /api/auth/refresh.
+    auth_cookie_minutes: int = 45
+    # Prod wajib COOKIE_SECURE=true; default False hanya untuk dev http lokal.
+    cookie_secure: bool = False
+
+    # Trusted proxy untuk parsing X-Forwarded-For (rate limit). Jangan percaya XFF mentah.
+    trusted_proxies: str = "127.0.0.1,::1"
+
+    # CORS: whitelist eksplisit via CORS_ORIGINS (koma). cors_allow_all hanya
+    # escape hatch debug lokal dan TIDAK mengirim credentials.
+    cors_allow_all: bool = False
+    cors_origins: str = ""
     cors_origins_csv: str = ""
-    cors_allow_all: bool = True
+
+    # Fallback Bearer dipertahankan karena mobile-app masih memakainya.
+    bearer_fallback_enabled: bool = True
+
+    @property
+    def cors_origin_list(self) -> list[str]:
+        csv_text = self.cors_origins or self.cors_origins_csv
+        return [
+            origin.strip().rstrip("/")
+            for origin in csv_text.split(",")
+            if origin.strip()
+        ]
+
+    @property
+    def trusted_proxy_list(self) -> list[str]:
+        return [p.strip() for p in self.trusted_proxies.split(",") if p.strip()]
 
     @property
     def upload_root(self) -> Path:

@@ -24,8 +24,8 @@ NOT_FOUND_MESSAGE = "Laporan tidak ditemukan."
 @router.get("", response_model=ReportPage)
 def list_reports(
     search: str | None = Query(None, max_length=100),
-    status_filter: ReportStatus | None = Query(None, alias="status"),
-    category: ReportCategory | None = Query(None),
+    status_filter: str | None = Query(None, alias="status"),
+    category: str | None = Query(None),
     limit: int = Query(20, ge=1, le=100),
     offset: int = Query(0, ge=0),
     current_user: User = Depends(get_current_user),
@@ -37,10 +37,24 @@ def list_reports(
         filters.append(
             or_(WasteReport.description.ilike(pattern), User.name.ilike(pattern))
         )
-    if status_filter is not None:
-        filters.append(WasteReport.status == status_filter.value)
-    if category is not None:
-        filters.append(WasteReport.category == category.value)
+    if status_filter and status_filter.strip():
+        try:
+            parsed_status = ReportStatus(status_filter.strip())
+            filters.append(WasteReport.status == parsed_status.value)
+        except ValueError:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="Status laporan tidak valid.",
+            ) from None
+    if category and category.strip():
+        try:
+            parsed_category = ReportCategory(category.strip())
+            filters.append(WasteReport.category == parsed_category.value)
+        except ValueError:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="Kategori laporan tidak valid.",
+            ) from None
     if current_user.role != "admin":
         filters.append(WasteReport.user_id == current_user.id)
 
