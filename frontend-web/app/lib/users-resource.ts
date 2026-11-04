@@ -6,6 +6,7 @@ export interface UserItem {
   email: string;
   role: "admin" | "user";
   created_at: string;
+  is_deleted: boolean;
 }
 
 export type UsersStatus = "idle" | "loading" | "ready" | "error";
@@ -43,10 +44,11 @@ export function getUsersSnapshot(): UsersSnapshot {
 
 // Snapshot lama dipertahankan saat memuat ulang supaya tabel tidak berkedip
 // kosong di antara dua publish.
-export async function reloadUsers(): Promise<void> {
+export async function reloadUsers(includeDeleted = false): Promise<void> {
   publish({ status: "loading", users: snapshot.users, error: null });
   try {
-    const users = await apiFetch<UserItem[]>("/api/users");
+    const url = includeDeleted ? "/api/users?include_deleted=true" : "/api/users";
+    const users = await apiFetch<UserItem[]>(url);
     publish({ status: "ready", users, error: null });
   } catch (err) {
     publish({ status: "error", users: snapshot.users, error: err instanceof Error ? err.message : USERS_LOAD_ERROR });

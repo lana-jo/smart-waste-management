@@ -2,15 +2,19 @@
 
 import { useEffect, useState, useSyncExternalStore, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { Users, UserPlus, Shield, AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
+import { Users, UserPlus, AlertCircle, CheckCircle2 } from "lucide-react";
 import { apiFetch } from "../lib/api";
 import { subscribeUsers, getUsersSnapshot, reloadUsers, type UserItem } from "../lib/users-resource";
 import { useAuth } from "../lib/auth-context";
 import { UserModal } from "./user-modal";
 import { UserTable } from "./user-table";
+import { DeleteConfirmationModal } from "./delete-confirmation-modal";
+import { UserGuards } from "./user-guards";
+import { UserFilters } from "./user-filters";
+import { UserSearch } from "./user-search";
 
 export default function UserManagementPage() {
-  const { token, role, isLoading: authLoading } = useAuth();
+  const { user, token, role, isLoading: authLoading } = useAuth();
   const router = useRouter();
 
   const { status, users, error } = useSyncExternalStore(
@@ -25,11 +29,16 @@ export default function UserManagementPage() {
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState<UserItem | null>(null);
 
+  const [deletingUser, setDeletingUser] = useState<{ id: string; name: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [userRole, setUserRole] = useState<"admin" | "user">("user");
   const [submitting, setSubmitting] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("active");
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     if (authLoading) return;
@@ -38,25 +47,22 @@ export default function UserManagementPage() {
       return;
     }
     if (role !== "admin") return;
-    void reloadUsers();
-  }, [authLoading, token, role, router]);
+    void reloadUsers(statusFilter !== "active");
+  }, [authLoading, token, role, router, statusFilter]);
 
   const openCreateModal = () => {
     setEditingUser(null);
-    setName("");
-    setEmail("");
-    setPassword("");
+    setName(""); setEmail(""); setPassword("");
     setUserRole("user");
     setActionError(null);
     setShowModal(true);
   };
 
-  const openEditModal = (user: UserItem) => {
-    setEditingUser(user);
-    setName(user.name);
-    setEmail(user.email);
+  const openEditModal = (userItem: UserItem) => {
+    setEditingUser(userItem);
+    setName(userItem.name); setEmail(userItem.email);
     setPassword("");
-    setUserRole(user.role);
+    setUserRole(userItem.role);
     setActionError(null);
     setShowModal(true);
   };
@@ -116,7 +122,7 @@ export default function UserManagementPage() {
         setSuccessMessage("Pengguna baru berhasil ditambahkan.");
       }
       closeModal();
-      await reloadUsers();
+      await reloadUsers(statusFilter !== "active");
       setSuccessMessage(editingUser ? "Pengguna berhasil diperbarui." : "Pengguna baru berhasil ditambahkan.");
     } catch (err) {
       setActionError(err instanceof Error ? err.message : "Gagal menyimpan data pengguna.");
@@ -125,56 +131,53 @@ export default function UserManagementPage() {
     }
   };
 
-  const handleDeleteUser = async (userId: string, userName: string) => {
-    if (!window.confirm(`Apakah Anda yakin ingin menghapus pengguna "${userName}"?`)) return;
+  const handleDeleteUser = (userId: string, userName: string) => {
+    setDeletingUser({ id: userId, name: userName });
+    setActionError(null);
+    setSuccessMessage(null);
+  };
+
+  const confirmDeleteUser = async () => {
+    if (!deletingUser) return;
+    setIsDeleting(true);
     setActionError(null);
     setSuccessMessage(null);
     try {
-      await apiFetch(`/api/users/${userId}`, { method: "DELETE" });
-      setSuccessMessage("Pengguna berhasil dihapus.");
-      await reloadUsers();
+      await apiFetch(`/api/users/${deletingUser.id}`, { method: "DELETE" });
+      setSuccessMessage("Pengguna berhasil dinonaktifkan.");
+      setDeletingUser(null);
+      await reloadUsers(statusFilter !== "active");
     } catch (err) {
       setActionError(err instanceof Error ? err.message : "Gagal menghapus pengguna.");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
-  if (authLoading || (role === "admin" && users.length === 0 && status !== "ready")) {
-    return (
-      <div className="flex items-center justify-center min-h-[50vh] text-stone-500 gap-2" role="status">
-        <Loader2 className="animate-spin" size={20} />
-        <span>Memuat manajemen pengguna...</span>
-      </div>
-    );
-  }
+  const guardResult = UserGuards({
+    authLoading,
+    role,
+    usersCount: users.length,
+    status,
+    error,
+    onReload: () => void reloadUsers(),
+  });
 
-  if (role !== "admin") {
-    return (
-      <div className="max-w-md mx-auto mt-12 p-6 bg-white border border-stone-200 rounded-xl shadow-xs text-center space-y-4">
-        <div className="w-12 h-12 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mx-auto">
-          <Shield size={24} />
-        </div>
-        <p className="text-sm text-rose-600 font-medium">Anda tidak memiliki akses ke halaman manajemen pengguna.</p>
-      </div>
-    );
-  }
+  if (guardResult) return guardResult;
 
-  if (error) {
-    return (
-      <div className="max-w-md mx-auto mt-12 p-6 bg-white border border-stone-200 rounded-xl shadow-xs text-center space-y-4">
-        <div className="w-12 h-12 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mx-auto">
-          <AlertCircle size={24} />
-        </div>
-        <p role="alert" className="text-sm text-rose-600 font-medium">{error}</p>
-        <button
-          type="button"
-          onClick={() => void reloadUsers()}
-          className="w-full px-4 py-2.5 rounded-lg bg-emerald-700 text-white text-sm font-medium hover:bg-emerald-800 transition-colors shadow-xs"
-        >
-          Muat Ulang
-        </button>
-      </div>
-    );
-  }
+  const filteredUsers = users.filter((u) => {
+    if (statusFilter === "active" && u.is_deleted) return false;
+    if (statusFilter === "inactive" && !u.is_deleted) return false;
+    
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      const nameMatch = u.name.toLowerCase().includes(q);
+      const emailMatch = u.email.toLowerCase().includes(q);
+      if (!nameMatch && !emailMatch) return false;
+    }
+    
+    return true;
+  });
 
   return (
     <div className="space-y-6 pb-10">
@@ -195,6 +198,11 @@ export default function UserManagementPage() {
         </div>
       </div>
 
+      <div className="flex flex-col sm:flex-row gap-4 items-center">
+        <UserSearch value={searchQuery} onChange={setSearchQuery} />
+        <UserFilters currentFilter={statusFilter} onFilterChange={setStatusFilter} />
+      </div>
+
       {successMessage ? (
         <div role="status" className="fixed top-20 right-4 z-50 p-4 bg-teal-50 border border-teal-200 text-teal-800 rounded-lg text-sm font-medium flex items-center gap-2 shadow-lg animate-in slide-in-from-top-2">
           <CheckCircle2 size={16} className="text-teal-700 shrink-0" />
@@ -208,9 +216,9 @@ export default function UserManagementPage() {
         </div>
       ) : null}
 
-      <UserTable users={users} onEdit={openEditModal} onDelete={handleDeleteUser} />
+      <UserTable users={filteredUsers} currentUserId={user?.id} onEdit={openEditModal} onDelete={handleDeleteUser} />
 
-      {users.length === 0 ? (
+      {filteredUsers.length === 0 ? (
         <div className="bg-white border border-stone-200 rounded-xl p-12 text-center space-y-3">
           <div className="w-12 h-12 rounded-full bg-stone-100 text-stone-500 flex items-center justify-center mx-auto">
             <Users size={24} />
@@ -234,6 +242,14 @@ export default function UserManagementPage() {
         actionError={actionError}
         onClose={closeModal}
         onSave={handleSaveUser}
+      />
+
+      <DeleteConfirmationModal
+        show={deletingUser !== null}
+        onClose={() => setDeletingUser(null)}
+        onConfirm={confirmDeleteUser}
+        userName={deletingUser?.name ?? ""}
+        isDeleting={isDeleting}
       />
     </div>
   );
