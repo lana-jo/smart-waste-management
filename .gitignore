@@ -11,3 +11,6 @@ backend/uploads/*
 !backend/uploads/.gitkeep
 frontend-web/.next/
 *.tsbuildinfo
+
+# Smoke test artifacts
+backend/.smoke/
