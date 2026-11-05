@@ -7,7 +7,7 @@ const DEV_FALLBACK_ORIGIN = "http://localhost:8000";
 // - undefined              -> dev: fallback localhost:8000; produksi: dilarang
 //                             pakai fallback http://, jadi fetch relatif
 //                             same-origin + diagnostik khusus log server (bukan
-//                             console browser pengguna — lihat R4).
+//                             console browser pengguna).
 // - ""                     -> fetch relatif same-origin (deployment ber-proxy).
 // - selain itu             -> pakai nilainya, buang trailing slash.
 export function resolveApiOrigin(): string {
