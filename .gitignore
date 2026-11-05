@@ -20,3 +20,8 @@ mobile-app/android/
 mobile-app/*.apk
 frontend-web/public/downloads/
 .vscode/
+
+# Scratch/utility scripts
+augment.py
+augment_tmp.py
+get-pip.py
