@@ -61,3 +61,39 @@ def _verifies_current_password(
     return payload.current_password is not None and verify_password(
         payload.current_password, current_user.password_hash
     )
+
+
+# Hash dummy bcrypt untuk menyetarak waktu proses login antara email yang
+# tidak terdaftar dan password yang salah (anti timing oracle).
+TIMING_DUMMY_HASH = "$2b$12$MY2KRGFXCvVWbNSCg9JBT.PnUj4DgLuTOVDAW.vR.BIr0CEfGggMu"
+
+
+def rotate_session(request, response, db, user, bearer=None):
+    """Revoke jti token lama, lalu kirim token + cookie baru pada response."""
+    import logging
+    import uuid
+    from datetime import UTC, datetime
+
+    import jwt
+
+    from app.deps import get_raw_token
+    from app.security import decode_token, token_expiry
+    from app.token_blocklist import revoke
+
+    raw_token = get_raw_token(request, bearer)
+    if raw_token is not None:
+        try:
+            old_claims = decode_token(raw_token)
+            old_jti = uuid.UUID(str(old_claims["jti"]))
+            revoke(
+                db,
+                old_jti,
+                user.id,
+                token_expiry(old_claims),
+                effective_at=datetime.now(UTC),
+            )
+        except (jwt.PyJWTError, KeyError, ValueError):
+            logging.getLogger("app.auth").info(
+                "rotasi sesi dilewati; token lama tanpa jti (bearer legacy)"
+            )
+    _set_auth_cookie(response, create_access_token(user.id, user.role))

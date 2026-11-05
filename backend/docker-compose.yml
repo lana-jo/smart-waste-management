@@ -5,7 +5,8 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password_rahasia_123}
+      # Wajib diisi di .env (fail-closed, tanpa fallback repo).
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD di backend/.env}
       POSTGRES_DB: smart_waste_db
       TZ: Asia/Jakarta
     ports:
@@ -19,6 +20,15 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+
+  # Opsional: storage rate limiter bersama lintas worker (set REDIS_URL).
+  redis:
+    image: redis:7-alpine
+    container_name: smart_waste_redis
+    restart: unless-stopped
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    ports:
+      - "127.0.0.1:6379:6379"
 
 volumes:
   pgdata:

@@ -1,9 +1,12 @@
-"""Rate limit per-IP via slowapi 0.1.10 (verifikasi PyPI resmi 2026).
+"""Rate limit anti-abuse: kunci per-token Bearer (per-praktis per-user, R47),
+fallback ke IP untuk request tak ber-auth.
 
-Catatan: storage memory berlaku per proses. Deployment multi-proses
-(uvicorn --workers > 1) butuh storage bersama (redis://) sebelum dipakai;
-ditandai TODO di bawah. Pesan 429 singkat tanpa detail internal (R75).
+Storage: redis:// jika REDIS_URL diisi (bersama lintas worker uvicorn),
+memory per-proses bila kosong (cukup untuk worker tunggal). Pesan 429
+singkat tanpa detail internal (R75).
 """
+
+import hashlib
 
 from fastapi import Request
 from slowapi import Limiter
@@ -12,7 +15,6 @@ from starlette.responses import JSONResponse, Response
 
 from app.config import get_settings
 
-# TODO(infra): ganti storage ke redis:// jika uvicorn dijalankan multi-worker.
 RATE_LIMIT_MESSAGE = "Terlalu banyak percobaan. Coba lagi nanti."
 
 
@@ -35,7 +37,22 @@ def _client_ip(request: Request) -> str:
     return candidates[0] if candidates else peer
 
 
-limiter = Limiter(key_func=_client_ip, default_limits=[])
+def _limiter_key(request: Request) -> str:
+    auth_header = request.headers.get("authorization") or ""
+    if auth_header.lower().startswith("bearer "):
+        raw_token = auth_header[len("bearer ") :].strip()
+        if raw_token:
+            # Hash agar token mentah tidak pernah jadi kunci storage (R62).
+            digest = hashlib.sha256(raw_token.encode()).hexdigest()[:24]
+            return f"user:{digest}"
+    return _client_ip(request)
+
+
+limiter = Limiter(
+    key_func=_limiter_key,
+    storage_uri=(get_settings().redis_url or None),
+    default_limits=[],
+)
 
 
 def rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded) -> Response:

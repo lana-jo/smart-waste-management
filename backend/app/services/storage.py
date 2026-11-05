@@ -27,7 +27,7 @@ class ImageValidationError(Exception):
         self.status_code = status_code
 
 
-def _check_upload_size(stream) -> None:
+def check_upload_size(stream) -> None:
     streamed_bytes = 0
     while chunk := stream.read(IO_CHUNK_BYTES):
         streamed_bytes += len(chunk)
@@ -60,9 +60,8 @@ def validate_and_save_image(upload: UploadFile) -> str:
     if upload.content_type not in ALLOWED_MIME_TYPES:
         raise ImageValidationError(WRONG_FORMAT_MESSAGE)
 
-    _check_upload_size(upload.file)
+    check_upload_size(upload.file)
     _verify_image_content(upload.file, file_extension)
-
     settings.upload_root.mkdir(parents=True, exist_ok=True)
     stored_name = f"{uuid.uuid4().hex}{file_extension}"
     upload.file.seek(0)

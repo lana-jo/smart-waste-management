@@ -17,10 +17,11 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.auth_helpers import (
+    TIMING_DUMMY_HASH,
     _clear_auth_cookie,
     _issue_login,
-    _set_auth_cookie,
     _verifies_current_password,
+    rotate_session,
 )
 from app.config import get_settings
 from app.database import get_db
@@ -29,7 +30,6 @@ from app.models import User
 from app.rate_limit import limiter
 from app.schemas import RegisterIn, Token, UserOut, UserProfileUpdate
 from app.security import (
-    create_access_token,
     decode_token,
     hash_password,
     token_expiry,
@@ -43,7 +43,7 @@ settings = get_settings()
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 WRONG_CREDENTIALS_MESSAGE = "Email atau password salah."
-DUPLICATE_EMAIL_MESSAGE = "Email sudah terdaftar. Gunakan email lain untuk mendaftar."
+DUPLICATE_EMAIL_MESSAGE = "Registrasi ditolak. Coba email lain atau hubungi admin."
 REAUTH_MESSAGE = "Password saat ini tidak sesuai. Periksa kembali kata sandi Anda."
 LOGOUT_MESSAGE = "Logout berhasil."
 
@@ -93,9 +93,16 @@ def authenticate_user(
     existing_user = db.scalar(
         select(User).where(User.email == credentials.username.lower())
     )
-    if existing_user is None or not verify_password(
-        credentials.password, existing_user.password_hash
-    ):
+    if existing_user is None:
+        # Sama-bobin biaya bcrypt agar penyerang tak bisa menebak terdaftar/tidak
+        # dari selisih waktu respons.
+        verify_password(credentials.password, TIMING_DUMMY_HASH)
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=WRONG_CREDENTIALS_MESSAGE,
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    if not verify_password(credentials.password, existing_user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=WRONG_CREDENTIALS_MESSAGE,
@@ -222,28 +229,3 @@ def update_profile(
         # Putar sesi: token lama dibuang dari blacklist, cookie baru direspons ini.
         rotate_session(request, response, db, current_user, bearer)
     return current_user
-
-
-def rotate_session(
-    request: Request,
-    response: Response,
-    db: Session,
-    user: User,
-    bearer: str | None = None,
-) -> None:
-    """Revoke jti token lama, lalu kirim token + cookie baru pada response."""
-    raw_token = get_raw_token(request, bearer)
-    if raw_token is not None:
-        try:
-            old_claims = decode_token(raw_token)
-            old_jti = uuid.UUID(str(old_claims["jti"]))
-            revoke(
-                db,
-                old_jti,
-                user.id,
-                token_expiry(old_claims),
-                effective_at=datetime.now(UTC),
-            )
-        except (jwt.PyJWTError, KeyError, ValueError):
-            logger.info("rotasi sesi dilewati; token lama tanpa jti (bearer legacy)")
-    _set_auth_cookie(response, create_access_token(user.id, user.role))

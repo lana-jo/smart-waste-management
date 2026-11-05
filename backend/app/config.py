@@ -35,6 +35,9 @@ class Settings(BaseSettings):
     # Fallback Bearer dipertahankan karena mobile-app masih memakainya.
     bearer_fallback_enabled: bool = True
 
+    # Storage rate limiter bersama lintas worker (opsional). Kosong = memory.
+    redis_url: str = ""
+
     @property
     def cors_origin_list(self) -> list[str]:
         csv_text = self.cors_origins or self.cors_origins_csv

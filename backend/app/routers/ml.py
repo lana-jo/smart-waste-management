@@ -8,6 +8,7 @@ from app.config import get_settings
 from app.deps import get_current_user
 from app.models import User
 from app.rate_limit import limiter
+from app.services.storage import ImageValidationError, check_upload_size
 
 logger = logging.getLogger("app.ml")
 
@@ -28,7 +29,7 @@ try:
 
     MODEL_PATH = settings.backend_dir / "waste_model.keras"
     try:
-        model = load_model(MODEL_PATH)
+        model = load_model(MODEL_PATH, safe_mode=True)  # anti-unsafe-pickle
     except Exception:
         logger.exception("gagal memuat model ML")
         model = None
@@ -49,6 +50,15 @@ async def predict_waste(
 
     if not file.content_type or not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="Bukan file gambar.")
+
+    try:
+        # check_upload_size menghabiskan stream; mundur ke posisi 0 sebelum baca.
+        check_upload_size(file.file)
+        file.file.seek(0)
+    except ImageValidationError as failure:
+        raise HTTPException(
+            status_code=failure.status_code, detail=failure.message
+        ) from None
 
     image = Image.open(io.BytesIO(await file.read())).convert("RGB").resize((224, 224))
     img_array = img_to_array(image) / 255.0

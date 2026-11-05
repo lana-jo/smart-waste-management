@@ -109,7 +109,19 @@ else:
 
 upload_root = settings.upload_root
 upload_root.mkdir(parents=True, exist_ok=True)
-app.mount("/uploads", StaticFiles(directory=upload_root), name="uploads")
+
+
+class _PrivateStaticFiles(StaticFiles):
+    """/uploads publik tapi ber-cache-control privat + nosniff (anti-scrape cache)."""
+
+    def file_response(self, *args, **kwargs):
+        response = super().file_response(*args, **kwargs)
+        response.headers["Cache-Control"] = "private, max-age=300"
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        return response
+
+
+app.mount("/uploads", _PrivateStaticFiles(directory=upload_root), name="uploads")
 
 for router_block in (
     auth.router,

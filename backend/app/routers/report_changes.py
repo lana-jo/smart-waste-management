@@ -7,6 +7,7 @@ from fastapi import (
     File,
     Form,
     HTTPException,
+    Request,
     UploadFile,
     status,
 )
@@ -16,6 +17,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.deps import get_current_user, require_admin
 from app.models import User, WasteReport
+from app.rate_limit import limiter
 from app.schemas import (
     ReportCategory,
     ReportOut,
@@ -57,12 +59,14 @@ def _collect_form_fields(
 
 
 @router.post("", response_model=ReportOut, status_code=201)
+@limiter.limit("10/minute")
 def create_report(
+    request: Request,
     image: Annotated[UploadFile, File()],
-    description: Annotated[str, Form()],
-    latitude: Annotated[float, Form()],
-    longitude: Annotated[float, Form()],
-    category: Annotated[ReportCategory, Form()],
+    description: Annotated[str | None, Form()] = None,
+    latitude: Annotated[float | None, Form()] = None,
+    longitude: Annotated[float | None, Form()] = None,
+    category: Annotated[ReportCategory | None, Form()] = None,
     confidence: Annotated[float, Form()] = 0.0,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
@@ -78,14 +82,30 @@ def create_report(
             status_code=failure.status_code, detail=failure.message
         ) from None
 
+    resolved_description = bounded_fields.description or "Laporan sampah mobile"
+    resolved_category = (
+        bounded_fields.category.value
+        if bounded_fields.category is not None
+        else ReportCategory.organic.value
+    )
+    resolved_confidence = (
+        bounded_fields.confidence if bounded_fields.confidence is not None else 0.0
+    )
+    resolved_latitude = (
+        bounded_fields.latitude if bounded_fields.latitude is not None else 0.0
+    )
+    resolved_longitude = (
+        bounded_fields.longitude if bounded_fields.longitude is not None else 0.0
+    )
+
     new_report = WasteReport(
         user_id=current_user.id,
         image_url=image_url,
-        category=bounded_fields.category.value,
-        confidence=bounded_fields.confidence,
-        description=bounded_fields.description,
-        latitude=bounded_fields.latitude,
-        longitude=bounded_fields.longitude,
+        category=resolved_category,
+        confidence=resolved_confidence,
+        description=resolved_description,
+        latitude=resolved_latitude,
+        longitude=resolved_longitude,
         status=ReportStatus.pending.value,
     )
     db.add(new_report)
@@ -106,7 +126,9 @@ def create_report(
 
 
 @router.put("/{report_id}", response_model=ReportOut)
+@limiter.limit("20/minute")
 def update_report(
+    request: Request,
     report_id: uuid.UUID,
     image: UploadFile | None = File(None),
     description: str | None = Form(None),
@@ -167,7 +189,9 @@ def update_report(
 
 
 @router.patch("/{report_id}/status", response_model=ReportOut)
+@limiter.limit("20/minute")
 def update_report_status(
+    request: Request,
     report_id: uuid.UUID,
     body_status: StatusIn,
     current_user: User = Depends(require_admin),
@@ -186,7 +210,9 @@ def update_report_status(
 
 
 @router.delete("/{report_id}", status_code=204)
+@limiter.limit("20/minute")
 def remove_report(
+    request: Request,
     report_id: uuid.UUID,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),

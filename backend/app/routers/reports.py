@@ -1,12 +1,13 @@
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session, joinedload
 
 from app.database import get_db
 from app.deps import get_current_user
 from app.models import User, WasteReport
+from app.rate_limit import limiter
 from app.schemas import (
     ReportCategory,
     ReportOut,
@@ -22,7 +23,9 @@ NOT_FOUND_MESSAGE = "Laporan tidak ditemukan."
 
 
 @router.get("", response_model=ReportPage)
+@limiter.limit("30/minute")
 def list_reports(
+    request: Request,
     search: str | None = Query(None, max_length=100),
     status_filter: str | None = Query(None, alias="status"),
     category: str | None = Query(None),
@@ -81,7 +84,9 @@ def list_reports(
 
 
 @router.get("/stats", response_model=StatsOut)
+@limiter.limit("30/minute")
 def read_report_stats(
+    request: Request,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> StatsOut:
