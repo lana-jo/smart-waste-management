@@ -1,0 +1,11 @@
+{
+  "name": "smart-waste-management",
+  "private": true,
+  "packageManager": "pnpm@12.15.0",
+  "scripts": {
+    "dev:web": "pnpm --filter frontend-web dev",
+    "build:web": "pnpm --filter frontend-web build",
+    "dev:mobile": "pnpm --filter mobile-app start",
+    "lint:web": "pnpm --filter frontend-web lint"
+  }
+}
