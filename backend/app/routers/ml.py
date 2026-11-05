@@ -60,7 +60,13 @@ async def predict_waste(
             status_code=failure.status_code, detail=failure.message
         ) from None
 
-    image = Image.open(io.BytesIO(await file.read())).convert("RGB").resize((224, 224))
+    try:
+        content = await file.read()
+        image = Image.open(io.BytesIO(content)).convert("RGB")
+    except Exception:
+        raise HTTPException(status_code=400, detail="File gambar rusak atau tidak valid.")
+
+    image = image.resize((224, 224))
     img_array = img_to_array(image) / 255.0
     img_array = np.expand_dims(img_array, axis=0)
 
