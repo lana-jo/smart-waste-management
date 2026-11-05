@@ -183,14 +183,14 @@ export default function UserManagementPage() {
     <div className="space-y-6 pb-10">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-stone-900">Manajemen Pengguna</h1>
-          <p className="text-sm text-stone-600 mt-1">Kelola akun pengguna, hak akses administrator, dan kredensial sistem.</p>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-stone-900 dark:text-stone-100">Manajemen Pengguna</h1>
+          <p className="text-sm text-stone-600 dark:text-stone-400 mt-1">Kelola akun pengguna, hak akses administrator, dan kredensial sistem.</p>
         </div>
         <div className="flex items-center gap-3">
           <button
             type="button"
             onClick={openCreateModal}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-emerald-700 text-white text-sm font-medium hover:bg-emerald-800 transition-colors shadow-xs focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-emerald-700 text-white text-sm font-medium hover:bg-emerald-800 transition-colors shadow-xs focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-950"
           >
             <UserPlus size={16} />
             Tambah Pengguna
@@ -204,14 +204,14 @@ export default function UserManagementPage() {
       </div>
 
       {successMessage ? (
-        <div role="status" className="fixed top-20 right-4 z-50 p-4 bg-teal-50 border border-teal-200 text-teal-800 rounded-lg text-sm font-medium flex items-center gap-2 shadow-lg animate-in slide-in-from-top-2">
-          <CheckCircle2 size={16} className="text-teal-700 shrink-0" />
+        <div role="status" className="fixed top-20 right-4 z-50 p-4 bg-teal-50 dark:bg-teal-950/60 border border-teal-200 dark:border-teal-800 text-teal-800 dark:text-teal-300 rounded-lg text-sm font-medium flex items-center gap-2 shadow-lg animate-in slide-in-from-top-2">
+          <CheckCircle2 size={16} className="text-teal-700 dark:text-teal-400 shrink-0" />
           <span>{successMessage}</span>
         </div>
       ) : null}
       {actionError ? (
-        <div role="alert" className="fixed top-20 right-4 z-50 p-4 bg-rose-50 border border-rose-200 text-rose-800 rounded-lg text-sm font-medium flex items-center gap-2 shadow-lg animate-in slide-in-from-top-2">
-          <AlertCircle size={16} className="text-rose-600 shrink-0" />
+        <div role="alert" className="fixed top-20 right-4 z-50 p-4 bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-300 rounded-lg text-sm font-medium flex items-center gap-2 shadow-lg animate-in slide-in-from-top-2">
+          <AlertCircle size={16} className="text-rose-600 dark:text-rose-400 shrink-0" />
           <span>{actionError}</span>
         </div>
       ) : null}
@@ -219,11 +219,11 @@ export default function UserManagementPage() {
       <UserTable users={filteredUsers} currentUserId={user?.id} onEdit={openEditModal} onDelete={handleDeleteUser} />
 
       {filteredUsers.length === 0 ? (
-        <div className="bg-white border border-stone-200 rounded-xl p-12 text-center space-y-3">
-          <div className="w-12 h-12 rounded-full bg-stone-100 text-stone-500 flex items-center justify-center mx-auto">
+        <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl p-12 text-center space-y-3">
+          <div className="w-12 h-12 rounded-full bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400 flex items-center justify-center mx-auto">
             <Users size={24} />
           </div>
-          <p className="text-base font-semibold text-stone-900">Belum ada pengguna terdaftar</p>
+          <p className="text-base font-semibold text-stone-900 dark:text-stone-100">Belum ada pengguna terdaftar</p>
         </div>
       ) : null}
 

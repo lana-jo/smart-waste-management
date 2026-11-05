@@ -89,13 +89,13 @@ export default function ReportsManagementPage() {
 
   if (error) {
     return (
-      <div className="max-w-md mx-auto mt-12 p-6 bg-white border border-stone-200 rounded-xl shadow-xs text-center space-y-4">
-        <div className="w-12 h-12 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mx-auto">
+      <div className="max-w-md mx-auto mt-12 p-6 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl shadow-xs text-center space-y-4">
+        <div className="w-12 h-12 rounded-full bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center mx-auto">
           <AlertCircle size={24} />
         </div>
         <div>
-          <h2 className="text-base font-semibold text-stone-900">Gagal Memuat Laporan</h2>
-          <p role="alert" className="text-sm text-stone-600 mt-1">{error}</p>
+          <h2 className="text-base font-semibold text-stone-900 dark:text-stone-100">Gagal Memuat Laporan</h2>
+          <p role="alert" className="text-sm text-stone-600 dark:text-stone-400 mt-1">{error}</p>
         </div>
         <button
           type="button"
@@ -112,14 +112,14 @@ export default function ReportsManagementPage() {
     <div className="space-y-6 pb-10">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-stone-900">Manajemen Laporan</h1>
-          <p className="text-sm text-stone-600 mt-1">Daftar laporan warga, hasil klasifikasi AI, dan pembaruan status penanganan.</p>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-stone-900 dark:text-stone-100">Manajemen Laporan</h1>
+          <p className="text-sm text-stone-600 dark:text-stone-400 mt-1">Daftar laporan warga, hasil klasifikasi AI, dan pembaruan status penanganan.</p>
         </div>
         <div className="flex items-center gap-3">
           <button
             type="button"
             onClick={() => void loadReports()}
-            className="flex items-center gap-2 px-3.5 py-2 border border-stone-300 rounded-lg text-sm font-medium text-stone-700 bg-white hover:bg-stone-50 transition-colors shadow-xs"
+            className="flex items-center gap-2 px-3.5 py-2 border border-stone-300 dark:border-stone-700 rounded-lg text-sm font-medium text-stone-700 dark:text-stone-300 bg-white dark:bg-stone-900 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors shadow-xs"
           >
             <RefreshCcw size={16} />
             Segarkan
@@ -139,14 +139,14 @@ export default function ReportsManagementPage() {
       />
 
       {statusMessage ? (
-        <div role="status" className="p-4 bg-teal-50 border border-teal-200 text-teal-800 rounded-lg text-sm font-medium flex items-center gap-2">
-          <CheckCircle2 size={16} className="text-teal-700 shrink-0" />
+        <div role="status" className="p-4 bg-teal-50 dark:bg-teal-950/60 border border-teal-200 dark:border-teal-800 text-teal-800 dark:text-teal-300 rounded-lg text-sm font-medium flex items-center gap-2">
+          <CheckCircle2 size={16} className="text-teal-700 dark:text-teal-400 shrink-0" />
           <span>{statusMessage}</span>
         </div>
       ) : null}
       {statusError ? (
-        <div role="alert" className="p-4 bg-rose-50 border border-rose-200 text-rose-800 rounded-lg text-sm font-medium flex items-center gap-2">
-          <AlertCircle size={16} className="text-rose-600 shrink-0" />
+        <div role="alert" className="p-4 bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-300 rounded-lg text-sm font-medium flex items-center gap-2">
+          <AlertCircle size={16} className="text-rose-600 dark:text-rose-400 shrink-0" />
           <span>{statusError}</span>
         </div>
       ) : null}
@@ -159,12 +159,12 @@ export default function ReportsManagementPage() {
       />
 
       {reports.length === 0 ? (
-        <div className="bg-white border border-stone-200 rounded-xl p-12 text-center space-y-3">
-          <div className="w-12 h-12 rounded-full bg-stone-100 text-stone-500 flex items-center justify-center mx-auto">
+        <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl p-12 text-center space-y-3">
+          <div className="w-12 h-12 rounded-full bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400 flex items-center justify-center mx-auto">
             <FileText size={24} />
           </div>
-          <p className="text-base font-semibold text-stone-900">Belum ada laporan ditemukan</p>
-          <p className="text-sm text-stone-500">Coba ubah kata kunci pencarian atau filter status.</p>
+          <p className="text-base font-semibold text-stone-900 dark:text-stone-100">Belum ada laporan ditemukan</p>
+          <p className="text-sm text-stone-500 dark:text-stone-400">Coba ubah kata kunci pencarian atau filter status.</p>
         </div>
       ) : null}
     </div>

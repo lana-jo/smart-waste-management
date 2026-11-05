@@ -41,7 +41,7 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[50vh] text-stone-500 gap-2" role="status">
+      <div className="flex items-center justify-center min-h-[50vh] text-stone-500 dark:text-stone-400 gap-2" role="status">
         <RefreshCcw className="animate-spin" size={20} />
         <span>Memuat data ringkasan operasional...</span>
       </div>
@@ -50,13 +50,13 @@ export default function AdminDashboard() {
 
   if (error || !stats) {
     return (
-      <div className="max-w-md mx-auto mt-12 p-6 bg-white border border-stone-200 rounded-xl shadow-xs text-center space-y-4">
-        <div className="w-12 h-12 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mx-auto">
+      <div className="max-w-md mx-auto mt-12 p-6 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl shadow-xs text-center space-y-4">
+        <div className="w-12 h-12 rounded-full bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center mx-auto">
           <AlertCircle size={24} />
         </div>
         <div>
-          <h2 className="text-base font-semibold text-stone-900">Gagal Memuat Dashboard</h2>
-          <p role="alert" className="text-sm text-stone-600 mt-1">{error ?? "Data ringkasan belum tersedia."}</p>
+          <h2 className="text-base font-semibold text-stone-900 dark:text-stone-100">Gagal Memuat Dashboard</h2>
+          <p role="alert" className="text-sm text-stone-600 dark:text-stone-400 mt-1">{error ?? "Data ringkasan belum tersedia."}</p>
         </div>
         <button
           type="button"
@@ -74,14 +74,14 @@ export default function AdminDashboard() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="px-2.5 py-1 text-xs font-semibold rounded-md bg-emerald-50 text-emerald-800 uppercase tracking-wide">
+            <span className="px-2.5 py-1 text-xs font-semibold rounded-md bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 uppercase tracking-wide">
               Ringkasan Sistem
             </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-stone-900 mt-2">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-stone-900 dark:text-stone-100 mt-2">
             Dashboard Utama Operasional
           </h1>
-          <p className="text-sm text-stone-600 mt-1">
+          <p className="text-sm text-stone-600 dark:text-stone-400 mt-1">
             Analisis waktu nyata aliran laporan sampah dan performa penanganan tim lapangan.
           </p>
         </div>
@@ -89,7 +89,7 @@ export default function AdminDashboard() {
           <button
             type="button"
             onClick={() => void loadStats()}
-            className="flex items-center gap-2 px-3.5 py-2 border border-stone-300 rounded-lg text-sm font-medium text-stone-700 bg-white hover:bg-stone-50 dark:bg-stone-950 transition-colors shadow-xs"
+            className="flex items-center gap-2 px-3.5 py-2 border border-stone-300 dark:border-stone-700 rounded-lg text-sm font-medium text-stone-700 dark:text-stone-300 bg-white dark:bg-stone-900 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors shadow-xs"
           >
             <RefreshCcw size={16} />
             Muat Ulang

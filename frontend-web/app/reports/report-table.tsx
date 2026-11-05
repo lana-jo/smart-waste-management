@@ -17,17 +17,17 @@ export interface ReportItem {
 const STATUS_FILTER_OPTIONS = ["Pending", "In Progress", "Completed", "Rejected"];
 
 function statusBadgeClass(status: string): string {
-  if (status === "Completed") return "bg-teal-50 text-teal-700 border-teal-200";
-  if (status === "In Progress") return "bg-blue-50 text-blue-700 border-blue-200";
-  if (status === "Pending") return "bg-amber-50 text-amber-700 border-amber-200";
-  return "bg-rose-50 text-rose-700 border-rose-200";
+  if (status === "Completed") return "bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300 border-teal-200 dark:border-teal-800";
+  if (status === "In Progress") return "bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800";
+  if (status === "Pending") return "bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800";
+  return "bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800";
 }
 
 function StatusIcon({ status }: { status: string }) {
-  if (status === "Completed") return <CheckCircle2 size={14} className="text-teal-700" />;
-  if (status === "In Progress") return <Clock size={14} className="text-blue-700" />;
-  if (status === "Pending") return <Clock size={14} className="text-amber-700" />;
-  return <XCircle size={14} className="text-rose-700" />;
+  if (status === "Completed") return <CheckCircle2 size={14} className="text-teal-700 dark:text-teal-400" />;
+  if (status === "In Progress") return <Clock size={14} className="text-blue-700 dark:text-blue-400" />;
+  if (status === "Pending") return <Clock size={14} className="text-amber-700 dark:text-amber-400" />;
+  return <XCircle size={14} className="text-rose-700 dark:text-rose-400" />;
 }
 
 interface ReportTableProps {
@@ -39,11 +39,11 @@ interface ReportTableProps {
 
 export function ReportTable({ reports, isAdmin, updatingId, onStatusChange }: ReportTableProps) {
   return (
-    <div className="bg-white border border-stone-200 rounded-xl overflow-hidden shadow-xs">
+    <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl overflow-hidden shadow-xs">
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse" aria-label="Daftar Laporan Sampah">
           <thead>
-            <tr className="border-b border-stone-200 bg-stone-50/75 text-xs font-semibold text-stone-500 uppercase tracking-wider">
+            <tr className="border-b border-stone-200 dark:border-stone-800 bg-stone-50/75 dark:bg-stone-900/50 text-xs font-semibold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
               <th scope="col" className="p-4">Kategori & Kepercayaan AI</th>
               <th scope="col" className="p-4">Deskripsi</th>
               <th scope="col" className="p-4">Pelapor</th>
@@ -52,29 +52,29 @@ export function ReportTable({ reports, isAdmin, updatingId, onStatusChange }: Re
               {isAdmin ? <th scope="col" className="p-4 text-right">Aksi</th> : null}
             </tr>
           </thead>
-          <tbody className="divide-y divide-stone-200 text-sm">
+          <tbody className="divide-y divide-stone-200 dark:divide-stone-800 text-sm">
             {reports.map((report) => (
-              <tr key={report.id} className="hover:bg-stone-50/50 transition-colors">
-                <td className="p-4 font-medium text-stone-900">
+              <tr key={report.id} className="hover:bg-stone-50/50 dark:hover:bg-stone-800/50 transition-colors">
+                <td className="p-4 font-medium text-stone-900 dark:text-stone-100">
                   <div className="flex items-center gap-2">
-                    <FileText size={16} className="text-emerald-700 shrink-0" />
+                    <FileText size={16} className="text-emerald-700 dark:text-emerald-400 shrink-0" />
                     <span>{report.category}</span>
                   </div>
-                  <span className="inline-flex items-center gap-1 text-xs font-normal text-stone-500 mt-1 bg-stone-100 px-2 py-0.5 rounded-md">
+                  <span className="inline-flex items-center gap-1 text-xs font-normal text-stone-500 dark:text-stone-400 mt-1 bg-stone-100 dark:bg-stone-800 px-2 py-0.5 rounded-md">
                     AI Conf: {Math.round(report.confidence * 100)}%
                   </span>
                 </td>
-                <td className="p-4 text-stone-700 max-w-xs truncate" title={report.description}>
+                <td className="p-4 text-stone-700 dark:text-stone-300 max-w-xs truncate" title={report.description}>
                   {report.description}
                 </td>
-                <td className="p-4 text-stone-700 font-medium">{report.reporter_name || "Warga"}</td>
+                <td className="p-4 text-stone-700 dark:text-stone-300 font-medium">{report.reporter_name || "Warga"}</td>
                 <td className="p-4">
                   <span className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-full border ${statusBadgeClass(report.status)}`}>
                     <StatusIcon status={report.status} />
                     {report.status}
                   </span>
                 </td>
-                <td className="p-4 text-stone-500 text-xs whitespace-nowrap">{formatTime(report.created_at)}</td>
+                <td className="p-4 text-stone-500 dark:text-stone-400 text-xs whitespace-nowrap">{formatTime(report.created_at)}</td>
                 {isAdmin ? (
                   <td className="p-4 text-right">
                     <div className="flex items-center justify-end gap-2">
@@ -86,7 +86,7 @@ export function ReportTable({ reports, isAdmin, updatingId, onStatusChange }: Re
                         }}
                         disabled={updatingId === report.id}
                         aria-label="Ubah status laporan"
-                        className="px-2.5 py-1.5 border border-stone-300 rounded-lg text-xs bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-emerald-700"
+                        className="px-2.5 py-1.5 border border-stone-300 dark:border-stone-700 rounded-lg text-xs bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-emerald-700"
                       >
                         {STATUS_FILTER_OPTIONS.map((option) => (
                           <option key={option} value={option}>
@@ -94,7 +94,7 @@ export function ReportTable({ reports, isAdmin, updatingId, onStatusChange }: Re
                           </option>
                         ))}
                       </select>
-                      {updatingId === report.id ? <Loader2 size={16} className="animate-spin text-emerald-700" /> : null}
+                      {updatingId === report.id ? <Loader2 size={16} className="animate-spin text-emerald-700 dark:text-emerald-400" /> : null}
                     </div>
                   </td>
                 ) : null}

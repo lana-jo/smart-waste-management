@@ -31,7 +31,49 @@ export function AppShell({ children }: { children: ReactNode }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  if (!user || isAuthPage) {
+  const isLandingPage = pathname === "/";
+
+  if (!user || isAuthPage || isLandingPage) {
+    if (isLandingPage) {
+      return (
+        <div className="min-h-screen flex flex-col bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 transition-colors">
+          <header className="border-b border-stone-200 dark:border-stone-800 bg-white/90 dark:bg-stone-950/90 backdrop-blur-md px-6 h-16 flex items-center justify-between sticky top-0 z-50">
+            <Link href="/" className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-emerald-700 flex items-center justify-center text-white shadow-sm">
+                <Leaf size={20} />
+              </div>
+              <span className="font-bold tracking-tight text-stone-900 dark:text-stone-100 text-base sm:text-lg">
+                Smart Waste
+              </span>
+            </Link>
+            <div className="flex items-center gap-3 text-sm font-medium">
+              <ThemeToggle />
+              <Link href="#features" className="hidden md:inline-block px-3 py-2 text-stone-600 dark:text-stone-400 hover:text-emerald-700">Fitur</Link>
+              <Link href="#download" className="hidden md:inline-block px-3 py-2 text-stone-600 dark:text-stone-400 hover:text-emerald-700">Download App</Link>
+              <Link href="/login" className="px-4 py-2 rounded-lg text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
+                Masuk
+              </Link>
+              <Link href="/register" className="bg-emerald-700 text-white px-4 py-2 rounded-lg hover:bg-emerald-800 transition-colors shadow-xs">
+                Daftar
+              </Link>
+            </div>
+          </header>
+          <main className="flex-1 w-full">
+            {children}
+          </main>
+          <footer className="border-t border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 py-8 px-6 text-center text-xs text-stone-500 dark:text-stone-400">
+            <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-2">
+                <Leaf size={16} className="text-emerald-600" />
+                <span className="font-semibold text-stone-800 dark:text-stone-200">Smart Waste Management Ecosystem</span>
+              </div>
+              <p>&copy; {new Date().getFullYear()} Kota Bersih & Lestari. Semua hak dilindungi.</p>
+            </div>
+          </footer>
+        </div>
+      );
+    }
+
     return (
       <div className="min-h-screen flex flex-col bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 transition-colors">
         <header className="border-b border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 px-6 h-16 flex items-center justify-between">
@@ -57,7 +99,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div className="w-full max-w-md">{children}</div>
         </main>
         <footer className="border-t border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 py-4 text-center text-xs text-stone-500 dark:text-stone-400">
-          Sistem Pengelolaan Sampah Terpadu — Bilcode Technology Assessment
+          Sistem Pengelolaan Sampah Terpadu — Solusi Kota Bersih & Lestari
         </footer>
       </div>
     );
@@ -71,50 +113,35 @@ export function AppShell({ children }: { children: ReactNode }) {
           sidebarCollapsed ? "w-20" : "w-64"
         }`}
       >
-        <div className={`h-16 px-4 flex items-center ${sidebarCollapsed ? "justify-center" : "justify-between"} border-b border-stone-200 dark:border-stone-800`}>
-          <Link href="/dashboard" className="flex items-center gap-2.5 overflow-hidden">
-            <div className="w-9 h-9 rounded-xl bg-emerald-700 flex items-center justify-center text-white shadow-sm shrink-0">
-              <Leaf size={20} />
-            </div>
-            {!sidebarCollapsed && (
-              <span className="font-bold tracking-tight text-stone-900 dark:text-stone-100 text-base truncate">
-                Smart Waste
-              </span>
-            )}
-          </Link>
+        <div className="h-16 px-4 flex items-center justify-between border-b border-stone-200 dark:border-stone-800">
+          <div className="flex items-center gap-2 overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              className="p-1.5 rounded-lg text-stone-500 hover:bg-stone-100 dark:text-stone-400 dark:hover:bg-stone-800 transition-colors"
+              title={sidebarCollapsed ? "Perluas Sidebar" : "Kecilkan Sidebar"}
+              aria-label={sidebarCollapsed ? "Perluas Sidebar" : "Kecilkan Sidebar"}
+            >
+              {sidebarCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+            </button>
+            <Link href="/dashboard" className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-emerald-700 flex items-center justify-center text-white shadow-sm shrink-0">
+                <Leaf size={20} />
+              </div>
+              {!sidebarCollapsed && (
+                <span className="font-bold tracking-tight text-stone-900 dark:text-stone-100 text-base truncate">
+                  Smart Waste
+                </span>
+              )}
+            </Link>
+          </div>
         </div>
 
         <div className="flex-1 px-3 py-6 overflow-y-auto">
           <NavLinks pathname={pathname} role={user.role} isCollapsed={sidebarCollapsed} />
         </div>
 
-        <div className="p-3 border-t border-stone-200 dark:border-stone-800 flex flex-col gap-2">
-          {!sidebarCollapsed && (
-            <div className="flex items-center justify-between px-2 py-1">
-              <span className="text-xs text-stone-500 dark:text-stone-400 font-medium">Tema</span>
-              <ThemeToggle />
-            </div>
-          )}
-          {sidebarCollapsed && (
-            <div className="flex justify-center py-1">
-              <ThemeToggle />
-            </div>
-          )}
-          <button
-            type="button"
-            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="w-full flex items-center justify-center gap-2 p-2 rounded-xl text-stone-500 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-900 dark:hover:text-stone-100 transition-colors text-sm font-medium"
-            title={sidebarCollapsed ? "Perluas Sidebar" : "Kecilkan Sidebar"}
-            aria-label={sidebarCollapsed ? "Perluas Sidebar" : "Kecilkan Sidebar"}
-          >
-            {sidebarCollapsed ? <ChevronRight size={18} /> : (
-              <>
-                <ChevronLeft size={18} />
-                <span className="text-xs">Kecilkan</span>
-              </>
-            )}
-          </button>
-        </div>
+
       </aside>
 
       {/* Main Content Layout with Top Header & Dropdown Profile / Keluar */}

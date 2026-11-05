@@ -20,7 +20,7 @@ export default function RootLayout({
     <html lang="id" suppressHydrationWarning>
       <body className="bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 antialiased font-sans">
         <ClientErrorReporter />
-        <ThemeProvider attribute="data-theme" defaultTheme="system" enableSystem>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <ToastProvider>
             <AuthProvider>
               <AppShell>{children}</AppShell>
