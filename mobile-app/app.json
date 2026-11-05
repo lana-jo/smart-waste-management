@@ -1,0 +1,19 @@
+{
+  "expo": {
+    "name": "Smart Waste Management",
+    "slug": "smart-waste-management",
+    "version": "1.0.0",
+    "splash": {
+      "image": "./src/components/Logo.tsx",
+      "resizeMode": "contain",
+      "backgroundColor": "#047857"
+    },
+    "android": {
+      "package": "com.smartwaste.app"
+    },
+    "plugins": [
+      "expo-image-picker",
+      "expo-location"
+    ]
+  }
+}

@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, ActivityIndicator, ScrollView, Alert } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { loginApi } from '../services/api';
 import { useTheme } from '../theme';
+import Button from '../components/Button';
+import Input from '../components/Input';
+import Card from '../components/Card';
+import Logo from '../components/Logo';
 
 interface Props {
   onLoginSuccess: (token: string) => void;
@@ -12,64 +16,75 @@ export default function LoginScreen({ onLoginSuccess, onNavigateRegister }: Prop
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const { colors } = useTheme();
+  const [error, setError] = useState<string | null>(null);
+  const { colors, spacing, typography, radii } = useTheme();
 
   const handleLogin = async () => {
+    setError(null);
+    if (!email.trim() || !password) {
+      setError('Email dan password wajib diisi.');
+      return;
+    }
     setLoading(true);
     try {
       const token = await loginApi(email, password);
       onLoginSuccess(token);
     } catch (e: any) {
-      Alert.alert('Login Gagal', e.message);
+      setError(e?.message || 'Login gagal. Periksa kembali data Anda.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <ScrollView contentContainerStyle={[styles.container, { backgroundColor: colors.background }]}>
-      <Text style={[styles.title, { color: colors.textPrimary }]}>Smart Waste Login</Text>
-      <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Masuk untuk mulai melaporkan sampah.</Text>
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <ScrollView contentContainerStyle={[styles.container, { backgroundColor: colors.background }]} keyboardShouldPersistTaps="handled">
+        <View style={[styles.hero, { marginBottom: spacing.xxl }]}>
+          <Logo size={72} />
+          <Text style={[typography.display, { color: colors.textPrimary, marginTop: spacing.lg }]}>Smart Waste</Text>
+          <Text style={[typography.body, { color: colors.textSecondary, marginTop: spacing.xs, textAlign: 'center' }]}>
+            Laporkan sampah di sekitar Anda. Masuk untuk mulai berkontribusi.
+          </Text>
+        </View>
 
-      <TextInput
-        style={[styles.input, { backgroundColor: colors.inputBg, borderColor: colors.border, color: colors.inputText }]}
-        placeholder="Email"
-        placeholderTextColor={colors.placeholder}
-        autoCapitalize="none"
-        keyboardType="email-address"
-        value={email}
-        onChangeText={setEmail}
-      />
-      <TextInput
-        style={[styles.input, { backgroundColor: colors.inputBg, borderColor: colors.border, color: colors.inputText }]}
-        placeholder="Password"
-        placeholderTextColor={colors.placeholder}
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
+        <Card>
+          <Input
+            label="Email"
+            value={email}
+            onChangeText={setEmail}
+            placeholder="nama@email.com"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            error={error && !email.trim() ? error : null}
+          />
+          <Input
+            label="Password"
+            value={password}
+            onChangeText={setPassword}
+            placeholder="Minimal 6 karakter"
+            secureTextEntry
+            autoCapitalize="none"
+            error={error && !password ? error : null}
+          />
+          {error && email.trim() && password ? (
+            <Text style={[typography.caption, { color: colors.danger, marginBottom: spacing.md }]}>{error}</Text>
+          ) : null}
+          <Button label="Masuk" onPress={handleLogin} loading={loading} />
+        </Card>
 
-      {loading ? (
-        <ActivityIndicator size="large" color={colors.primary} style={{ marginVertical: 20 }} />
-      ) : (
-        <TouchableOpacity style={[styles.buttonPrimary, { backgroundColor: colors.primary }]} onPress={handleLogin}>
-          <Text style={[styles.buttonText, { color: colors.primaryText }]}>Masuk</Text>
-        </TouchableOpacity>
-      )}
-
-      <TouchableOpacity style={{ marginTop: 20, alignItems: 'center' }} onPress={onNavigateRegister}>
-        <Text style={[styles.linkText, { color: colors.primary }]}>Belum punya akun? Daftar</Text>
-      </TouchableOpacity>
-    </ScrollView>
+        {/*<View style={{ alignItems: 'center', marginTop: spacing.xl }}>
+          <Text style={[typography.body, { color: colors.textSecondary }]}>Belum punya akun?</Text>
+          <Text style={[typography.bodyBold, { color: colors.primary, marginTop: spacing.xs, paddingVertical: 8 }]} onPress={onNavigateRegister} accessibilityRole="button" accessibilityLabel="Buka halaman daftar">
+            Daftar sekarang
+          </Text>
+        </View>*/}
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flexGrow: 1, padding: 24, justifyContent: 'center' },
-  title: { fontSize: 24, fontWeight: 'bold' },
-  subtitle: { fontSize: 14, marginBottom: 24 },
-  input: { borderWidth: 1, borderRadius: 8, padding: 12, marginBottom: 16, fontSize: 16 },
-  buttonPrimary: { paddingVertical: 14, borderRadius: 8, alignItems: 'center' },
-  buttonText: { fontSize: 16, fontWeight: '600' },
-  linkText: { fontWeight: '600', fontSize: 14 },
+  hero: { alignItems: 'center' },
+  logo: { width: 64, height: 64 },
 });

@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, ActivityIndicator, ScrollView, Alert, useColorScheme } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { registerApi } from '../services/api';
-import theme from '../theme';
+import { useTheme } from '../theme';
+import Button from '../components/Button';
+import Input from '../components/Input';
+import Card from '../components/Card';
+import Logo from '../components/Logo';
 
 interface Props {
   onRegisterSuccess: () => void;
@@ -13,73 +17,76 @@ export default function RegisterScreen({ onRegisterSuccess, onNavigateLogin }: P
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const colorScheme = useColorScheme() || 'light';
-  const colors = theme[colorScheme];
-
-  const styles = StyleSheet.create({
-    container: { flexGrow: 1, backgroundColor: colors.background, padding: 24, justifyContent: 'center' },
-    title: { fontSize: 24, fontWeight: 'bold', color: colors.text },
-    subtitle: { fontSize: 14, color: colors.secondaryText, marginBottom: 24 },
-    input: { backgroundColor: colors.inputBg, borderWidth: 1, borderColor: colors.inputBorder, borderRadius: 8, padding: 12, marginBottom: 16, fontSize: 16, color: colors.text },
-    buttonPrimary: { backgroundColor: colors.primary, paddingVertical: 14, borderRadius: 8, alignItems: 'center' },
-    buttonText: { color: colors.buttonText, fontSize: 16, fontWeight: '600' },
-    linkText: { color: colors.primary, fontWeight: '600', fontSize: 14 },
-  });
+  const [error, setError] = useState<string | null>(null);
+  const { colors, spacing, typography, radii } = useTheme();
 
   const handleRegister = async () => {
+    setError(null);
+    if (!name.trim() || !email.trim() || !password) {
+      setError('Nama, email, dan password wajib diisi.');
+      return;
+    }
+    if (password.length < 6) {
+      setError('Password minimal 6 karakter.');
+      return;
+    }
     setLoading(true);
     try {
       await registerApi(name, email, password);
-      Alert.alert('Berhasil', 'Akun berhasil dibuat. Silakan login.');
       onRegisterSuccess();
     } catch (e: any) {
-      Alert.alert('Registrasi Gagal', e.message);
+      setError(e?.message || 'Registrasi gagal. Coba lagi nanti.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Daftar Akun Baru</Text>
-      <Text style={styles.subtitle}>Buat akun untuk berkontribusi.</Text>
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <ScrollView contentContainerStyle={[styles.container, { backgroundColor: colors.background }]} keyboardShouldPersistTaps="handled">
+        <View style={[styles.hero, { marginBottom: spacing.xxl }]}>
+          <Logo size={72} />
+          <Text style={[typography.display, { color: colors.textPrimary, marginTop: spacing.lg }]}>Buat Akun</Text>
+          <Text style={[typography.body, { color: colors.textSecondary, marginTop: spacing.xs, textAlign: 'center' }]}>
+            Daftar untuk mulai melaporkan sampah di lingkungan Anda.
+          </Text>
+        </View>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Nama Lengkap"
-        placeholderTextColor={colors.secondaryText}
-        value={name}
-        onChangeText={setName}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        placeholderTextColor={colors.secondaryText}
-        autoCapitalize="none"
-        keyboardType="email-address"
-        value={email}
-        onChangeText={setEmail}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password (min 6 char)"
-        placeholderTextColor={colors.secondaryText}
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
+        <Card>
+          <Input label="Nama Lengkap" value={name} onChangeText={setName} placeholder="Nama Anda" />
+          <Input
+            label="Email"
+            value={email}
+            onChangeText={setEmail}
+            placeholder="nama@email.com"
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+          <Input
+            label="Password"
+            value={password}
+            onChangeText={setPassword}
+            placeholder="Minimal 6 karakter"
+            secureTextEntry
+            autoCapitalize="none"
+          />
+          {error ? <Text style={[typography.caption, { color: colors.danger, marginBottom: spacing.md }]}>{error}</Text> : null}
+          <Button label="Daftar" onPress={handleRegister} loading={loading} />
+        </Card>
 
-      {loading ? (
-        <ActivityIndicator size="large" color={colors.primary} style={{ marginVertical: 20 }} />
-      ) : (
-        <TouchableOpacity style={styles.buttonPrimary} onPress={handleRegister}>
-          <Text style={styles.buttonText}>Daftar</Text>
-        </TouchableOpacity>
-      )}
-
-      <TouchableOpacity style={{ marginTop: 20, alignItems: 'center' }} onPress={onNavigateLogin}>
-        <Text style={styles.linkText}>Sudah punya akun? Masuk</Text>
-      </TouchableOpacity>
-    </ScrollView>
+        <View style={{ alignItems: 'center', marginTop: spacing.xl }}>
+          <Text style={[typography.body, { color: colors.textSecondary }]}>Sudah punya akun?</Text>
+          <Text style={[typography.bodyBold, { color: colors.primary, marginTop: spacing.xs, paddingVertical: 8 }]} onPress={onNavigateLogin} accessibilityRole="button" accessibilityLabel="Kembali ke halaman masuk">
+            Masuk
+          </Text>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { flexGrow: 1, padding: 24, justifyContent: 'center' },
+  hero: { alignItems: 'center' },
+  logo: { width: 64, height: 64 },
+});
