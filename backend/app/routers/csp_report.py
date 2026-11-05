@@ -3,7 +3,7 @@
 Tanpa auth + rate limit 30/menit per IP (limiter global app.rate_limit,
 key_func _client_ip anti-spoof X-Forwarded-For). Body mentah TIDAK disimpan
 (bisa mengandung token/nonce bocor); hanya directive + path dokumen yang
-masuk log (R62).
+masuk log.
 """
 
 import json

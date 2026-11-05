@@ -1,9 +1,9 @@
-"""Rate limit anti-abuse: kunci per-token Bearer (per-praktis per-user, R47),
+"""Rate limit anti-abuse: kunci per-token Bearer (per-user),
 fallback ke IP untuk request tak ber-auth.
 
 Storage: redis:// jika REDIS_URL diisi (bersama lintas worker uvicorn),
 memory per-proses bila kosong (cukup untuk worker tunggal). Pesan 429
-singkat tanpa detail internal (R75).
+singkat tanpa detail internal.
 """
 
 import hashlib
@@ -42,7 +42,7 @@ def _limiter_key(request: Request) -> str:
     if auth_header.lower().startswith("bearer "):
         raw_token = auth_header[len("bearer ") :].strip()
         if raw_token:
-            # Hash agar token mentah tidak pernah jadi kunci storage (R62).
+            # Hash agar token mentah tidak pernah jadi kunci storage.
             digest = hashlib.sha256(raw_token.encode()).hexdigest()[:24]
             return f"user:{digest}"
     return _client_ip(request)

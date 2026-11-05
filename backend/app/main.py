@@ -53,7 +53,7 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
         )
         conn.commit()
 
-    # Purge token kedaluwarsa saat startup & jalankan background task periodik (R55)
+    # Purge token kedaluwarsa saat startup & jalankan background task periodik
     with SessionLocal() as db:
         purge(db)
     purge_task = asyncio.create_task(run_token_purge_loop())

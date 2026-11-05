@@ -61,7 +61,7 @@ def purge(db: Session) -> None:
 
 
 async def run_token_purge_loop(interval_seconds: int = 3600) -> None:
-    """Background task terjadwal untuk membersihkan revoked_tokens kedaluwarsa (R55)."""
+    """Background task terjadwal untuk membersihkan revoked_tokens kedaluwarsa."""
     while True:
         await asyncio.sleep(interval_seconds)
         try:

@@ -1,6 +1,6 @@
 """Helper functions for the auth router (cookie/token issuance).
 
-Dipisah agar routers/auth.py tetap di bawah batas 250 baris (R73).
+Dipisah agar routers/auth.py tetap modular.
 """
 
 from typing import TYPE_CHECKING

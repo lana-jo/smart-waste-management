@@ -2,7 +2,7 @@
 
 Tanpa auth + light rate limit (30/menit per IP). Body mentah TIDAK disimpan —
 message/stack bisa memuat token atau path internal; hanya field terpilih yang
-di-trim masuk log (R62). Selalu balas 204 (termasuk body rusak) agar beacon
+di-trim masuk log. Selalu balas 204 (termasuk body rusak) agar beacon
 browser tidak memicu retry.
 """
 
@@ -68,7 +68,7 @@ async def receive_client_error(request: Request) -> Response:
         _trim(str(payload.get("source", "")), 200),
         _int_or_dash(payload.get("lineno")),
         _int_or_dash(payload.get("colno")),
-        # Hanya path dokumen yang diambil, query string dibuang (R62).
+        # Hanya path dokumen yang diambil, query string dibuang.
         _trim(urlparse(str(payload.get("path", ""))).path, 200),
         _trim(str(payload.get("stack", "")), 1200),
     )
