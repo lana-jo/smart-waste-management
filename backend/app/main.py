@@ -61,7 +61,7 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     purge_task.cancel()
 
 
-app = FastAPI(title="Smart Waste Management API", version="0.1.0", lifespan=lifespan)
+app = FastAPI(title="Smart Waste Management API", version="1.0.0", lifespan=lifespan)
 
 
 @app.exception_handler(RequestValidationError)
@@ -137,4 +137,4 @@ for router_block in (
 
 @app.get("/")
 def read_service_status() -> dict[str, str]:
-    return {"status": "ok", "version": "0.1.0"}
+    return {"status": "ok", "version": "1.0.0"}
