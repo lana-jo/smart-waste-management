@@ -9,10 +9,8 @@ interface Props {
 export default function Logo({ size = 64 }: Props) {
   const { colors } = useTheme();
   return (
-    <View style={[styles.container, { width: size, height: size, borderRadius: size * 0.28, backgroundColor: colors.primary }]}>
-      <View style={[styles.innerCircle, { width: size * 0.65, height: size * 0.65, borderRadius: size * 0.325 }]}>
-        <Text style={[styles.symbol, { fontSize: size * 0.38, color: colors.primary }]}>♻</Text>
-      </View>
+    <View style={[styles.container, { width: size, height: size, borderRadius: size * 0.25, backgroundColor: '#16a34a' }]}>
+      <Text style={[styles.symbol, { fontSize: size * 0.45, color: '#ffffff' }]}>♻</Text>
     </View>
   );
 }

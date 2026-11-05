@@ -72,12 +72,12 @@ export default function LoginScreen({ onLoginSuccess, onNavigateRegister }: Prop
           <Button label="Masuk" onPress={handleLogin} loading={loading} />
         </Card>
 
-        {/*<View style={{ alignItems: 'center', marginTop: spacing.xl }}>
+        <View style={{ alignItems: 'center', marginTop: spacing.xl }}>
           <Text style={[typography.body, { color: colors.textSecondary }]}>Belum punya akun?</Text>
           <Text style={[typography.bodyBold, { color: colors.primary, marginTop: spacing.xs, paddingVertical: 8 }]} onPress={onNavigateRegister} accessibilityRole="button" accessibilityLabel="Buka halaman daftar">
             Daftar sekarang
           </Text>
-        </View>*/}
+        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );

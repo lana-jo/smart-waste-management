@@ -12,4 +12,8 @@ export interface ReportItem {
   description?: string;
   status: string;
   created_at: string;
+  image_url: string;
+  latitude: number;
+  longitude: number;
+  confidence: number;
 }
