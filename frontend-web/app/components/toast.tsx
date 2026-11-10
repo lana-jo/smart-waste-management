@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback, ReactNode } from "react";
+import React, { createContext, useContext, useState, useCallback, useMemo, ReactNode } from "react";
 import { CheckCircle2, AlertCircle, Info, X } from "lucide-react";
 
 type ToastType = "success" | "error" | "info";
@@ -32,15 +32,16 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
+  const value = useMemo(() => ({ showToast }), [showToast]);
   return (
-    <ToastContext.Provider value={{ showToast }}>
+    <ToastContext.Provider value={value}>
       {children}
-      <div aria-live="polite" className="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full px-4 pointer-events-none">
+      <div aria-live="polite" className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] lg:bottom-5 left-4 right-4 sm:left-auto sm:right-5 z-50 flex flex-col gap-2 max-w-sm w-auto sm:w-full pointer-events-none">
         {toasts.map((t) => (
           <div
             key={t.id}
-            role="alert"
-            className={`pointer-events-auto flex items-start gap-3 p-4 rounded-xl shadow-lg border text-sm font-medium transition-all duration-300 animate-in fade-in slide-in-from-bottom-3 ${
+            role="status"
+            className={`pointer-events-auto flex items-start gap-3 p-4 rounded-xl shadow-lg border text-sm font-medium animate-toast-enter ${
               t.type === "success"
                 ? "bg-emerald-900/95 text-emerald-50 border-emerald-700/50 shadow-emerald-950/20"
                 : t.type === "error"
@@ -54,7 +55,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             <div className="flex-1 leading-relaxed">{t.message}</div>
             <button
               onClick={() => removeToast(t.id)}
-              className="text-stone-400 hover:text-stone-200 transition-colors p-0.5 rounded-lg -mr-1"
+              className="text-stone-400 hover:text-stone-200 transition-colors min-h-11 min-w-11 flex items-center justify-center shrink-0 rounded-lg -mr-2"
               aria-label="Tutup notifikasi"
             >
               <X className="w-4 h-4" />

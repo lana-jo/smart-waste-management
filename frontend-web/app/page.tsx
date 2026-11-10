@@ -4,20 +4,20 @@ import { DownloadButtons } from "./components/download-buttons";
 
 export default function HomePage() {
   return (
-    <div className="w-full">
+    <div className="w-full min-w-0 overflow-x-clip">
       {/* Hero Section */}
-      <section className="relative overflow-hidden pt-16 pb-24 lg:pt-24 lg:pb-36 bg-gradient-to-b from-emerald-50/60 via-stone-50 to-stone-50 dark:from-emerald-950/20 dark:via-stone-950 dark:to-stone-950">
+      <section className="relative overflow-hidden pt-10 pb-16 sm:pt-16 sm:pb-24 lg:pt-24 lg:pb-36 bg-gradient-to-b from-emerald-50/60 via-stone-50 to-stone-50 dark:from-emerald-950/20 dark:via-stone-950 dark:to-stone-950">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center min-w-0">
             
             {/* Left Content */}
-            <div className="lg:col-span-7 text-center lg:text-left space-y-6">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-300 text-xs font-semibold tracking-wide">
+            <div className="lg:col-span-7 min-w-0 text-center lg:text-left space-y-6">
+              <div className="inline-flex max-w-full items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-300 text-xs font-semibold tracking-wide text-center">
                 <Leaf size={14} />
                 <span>Smart Waste Management Ecosystem</span>
               </div>
 
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-stone-900 dark:text-stone-100 leading-tight">
+              <h1 className="text-[2rem] sm:text-5xl lg:text-6xl font-bold tracking-tight text-stone-900 dark:text-stone-100 leading-snug text-balance break-words">
                 Solusi Modern Pengelolaan Sampah & <span className="text-emerald-700 dark:text-emerald-400">AI Scanner</span>
               </h1>
 
@@ -28,13 +28,13 @@ export default function HomePage() {
               <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4">
                 <a
                   href="#download"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-emerald-700 text-white px-7 py-4 rounded-xl font-medium hover:bg-emerald-800 transition-all shadow-lg shadow-emerald-700/20 hover:scale-[1.02]"
+                  className="w-full sm:w-auto min-h-[48px] max-w-full inline-flex items-center justify-center gap-2.5 bg-emerald-700 text-white px-7 py-4 rounded-xl font-medium hover:bg-emerald-800 transition-all shadow-lg shadow-emerald-700/20 sm:hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2 dark:focus-visible:ring-emerald-300"
                 >
                   <span>Download Mobile App</span>
                 </a>
                 <Link
                   href="/login"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200 border border-stone-300 dark:border-stone-700 px-7 py-4 rounded-xl font-medium hover:bg-stone-100 dark:hover:bg-stone-800 transition-all"
+                  className="w-full sm:w-auto min-h-[48px] max-w-full inline-flex items-center justify-center gap-2.5 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200 border border-stone-300 dark:border-stone-700 px-7 py-4 rounded-xl font-medium hover:bg-stone-100 dark:hover:bg-stone-800 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2 dark:focus-visible:ring-emerald-300"
                 >
                   <span>Masuk Portal Web</span>
                   <ArrowRight size={16} />
@@ -42,25 +42,25 @@ export default function HomePage() {
               </div>
 
               {/* Trust badges */}
-              <div className="grid grid-cols-3 gap-4 pt-8 border-t border-stone-200 dark:border-stone-800 max-w-lg mx-auto lg:mx-0">
-                <div>
-                  <p className="text-2xl font-bold text-stone-900 dark:text-stone-100">AI Vision</p>
-                  <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">Scan Sampah Cepat</p>
+              <div className="grid grid-cols-3 gap-2 sm:gap-4 pt-8 border-t border-stone-200 dark:border-stone-800 max-w-lg mx-auto lg:mx-0 min-w-0">
+                <div className="min-w-0">
+                  <p className="text-lg sm:text-2xl font-bold text-stone-900 dark:text-stone-100 leading-tight break-words">AI Vision</p>
+                  <p className="text-xs text-stone-600 dark:text-stone-400 mt-0.5 break-words">Scan Sampah Cepat</p>
                 </div>
-                <div>
-                  <p className="text-2xl font-bold text-stone-900 dark:text-stone-100">Real-time</p>
-                  <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">Pelaporan Warga</p>
+                <div className="min-w-0">
+                  <p className="text-lg sm:text-2xl font-bold text-stone-900 dark:text-stone-100 leading-tight break-words">Real-time</p>
+                  <p className="text-xs text-stone-600 dark:text-stone-400 mt-0.5 break-words">Pelaporan Warga</p>
                 </div>
-                <div>
-                  <p className="text-2xl font-bold text-stone-900 dark:text-stone-100">Aman</p>
-                  <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">Enkripsi & Autentikasi</p>
+                <div className="min-w-0">
+                  <p className="text-lg sm:text-2xl font-bold text-stone-900 dark:text-stone-100 leading-tight break-words">Aman</p>
+                  <p className="text-xs text-stone-600 dark:text-stone-400 mt-0.5 break-words">Enkripsi & Autentikasi</p>
                 </div>
               </div>
             </div>
 
             {/* Right Graphic Preview */}
-            <div className="lg:col-span-5 flex justify-center">
-              <div className="w-full max-w-sm bg-gradient-to-br from-emerald-600 to-emerald-900 rounded-3xl p-6 shadow-2xl text-white space-y-6 relative">
+            <div className="lg:col-span-5 min-w-0 flex justify-center">
+              <div className="w-full min-w-0 sm:max-w-sm bg-gradient-to-br from-emerald-600 to-emerald-900 rounded-3xl p-5 sm:p-6 shadow-2xl text-white space-y-6 relative">
                 <div className="absolute top-4 right-4 bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-medium">
                   Mobile App Ready
                 </div>
@@ -99,9 +99,9 @@ export default function HomePage() {
       </section>
 
       {/* Features Overview */}
-      <section className="py-20 bg-white dark:bg-stone-900 border-y border-stone-200 dark:border-stone-800">
+      <section id="features" className="py-14 sm:py-20 scroll-mt-16 overflow-hidden bg-white dark:bg-stone-900 border-y border-stone-200 dark:border-stone-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
+          <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16 space-y-4">
             <h2 className="text-xs font-semibold tracking-wider text-emerald-700 dark:text-emerald-400 uppercase">
               Fitur Utama
             </h2>
@@ -113,32 +113,32 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="p-8 rounded-2xl bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-8 min-w-0">
+            <div className="p-5 sm:p-8 rounded-2xl bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 space-y-4 min-w-0">
               <div className="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-950 flex items-center justify-center text-emerald-700 dark:text-emerald-400">
                 <Sparkles size={24} />
               </div>
-              <h4 className="text-xl font-bold text-stone-900 dark:text-stone-100">Scan Sampah dengan AI</h4>
+              <h4 className="text-lg sm:text-xl font-bold text-stone-900 dark:text-stone-100 break-words">Scan Sampah dengan AI</h4>
               <p className="text-stone-600 dark:text-stone-400 text-sm leading-relaxed">
                 Ambil foto sampah menggunakan kamera ponsel Anda dan biarkan sistem kecerdasan buatan membantu mengklasifikasikan jenisnya secara instan.
               </p>
             </div>
 
-            <div className="p-8 rounded-2xl bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 space-y-4">
+            <div className="p-5 sm:p-8 rounded-2xl bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 space-y-4 min-w-0">
               <div className="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-950 flex items-center justify-center text-emerald-700 dark:text-emerald-400">
                 <Smartphone size={24} />
               </div>
-              <h4 className="text-xl font-bold text-stone-900 dark:text-stone-100">Pelaporan Mudah</h4>
+              <h4 className="text-lg sm:text-xl font-bold text-stone-900 dark:text-stone-100 break-words">Pelaporan Mudah</h4>
               <p className="text-stone-600 dark:text-stone-400 text-sm leading-relaxed">
                 Laporkan tumpukan sampah atau masalah kebersihan di lingkungan Anda langsung melalui aplikasi mobile dengan menyertakan foto dan keterangan.
               </p>
             </div>
 
-            <div className="p-8 rounded-2xl bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 space-y-4">
+            <div className="p-5 sm:p-8 rounded-2xl bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 space-y-4 min-w-0">
               <div className="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-950 flex items-center justify-center text-emerald-700 dark:text-emerald-400">
                 <ShieldCheck size={24} />
               </div>
-              <h4 className="text-xl font-bold text-stone-900 dark:text-stone-100">Keamanan & Privasi</h4>
+              <h4 className="text-lg sm:text-xl font-bold text-stone-900 dark:text-stone-100 break-words">Keamanan & Privasi</h4>
               <p className="text-stone-600 dark:text-stone-400 text-sm leading-relaxed">
                 Sistem dilindungi oleh autentikasi yang aman dan pengelolaan akun terstruktur untuk memastikan data laporan Anda terjaga kerahasiaannya.
               </p>
@@ -148,9 +148,9 @@ export default function HomePage() {
       </section>
 
       {/* Download Section */}
-      <section id="download" className="py-20 bg-gradient-to-b from-stone-50 to-emerald-50/40 dark:from-stone-950 dark:to-emerald-950/20">
+      <section id="download" className="py-14 sm:py-20 scroll-mt-20 overflow-x-clip bg-gradient-to-b from-stone-50 to-emerald-50/40 dark:from-stone-950 dark:to-emerald-950/20">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-emerald-900 text-white rounded-3xl p-8 sm:p-12 lg:p-16 text-center space-y-8 shadow-2xl relative overflow-hidden">
+          <div className="bg-emerald-900 text-white rounded-3xl p-5 sm:p-12 lg:p-16 text-center space-y-6 sm:space-y-8 shadow-2xl relative overflow-hidden">
             <div className="absolute -right-20 -bottom-20 w-80 h-80 rounded-full bg-emerald-800/50 blur-3xl pointer-events-none" />
             <div className="absolute -left-20 -top-20 w-80 h-80 rounded-full bg-emerald-700/30 blur-2xl pointer-events-none" />
 

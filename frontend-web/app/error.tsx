@@ -25,10 +25,10 @@ export default function ErrorPage({
   }, [error]);
 
   return (
-    <div className="max-w-md mx-auto pt-8 pb-12">
+    <div className="w-full max-w-md mx-auto pt-4 sm:pt-8 pb-12">
       <div
         role="alert"
-        className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-2xl p-6 sm:p-8 shadow-xs relative overflow-hidden text-center"
+        className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-2xl p-4 sm:p-8 shadow-xs relative overflow-hidden text-center"
       >
         <div className="absolute top-0 left-0 right-0 h-1.5 bg-rose-600" />
 
@@ -39,11 +39,11 @@ export default function ErrorPage({
         <h1
           ref={headingRef}
           tabIndex={-1}
-          className="text-xl font-bold tracking-tight text-stone-900 dark:text-stone-100"
+          className="text-xl font-bold tracking-tight text-stone-900 dark:text-stone-100 text-balance"
         >
           Bagian halaman ini gagal dimuat
         </h1>
-        <p className="mt-2 text-sm leading-relaxed text-stone-600 dark:text-stone-400">
+        <p className="mt-2 text-sm leading-relaxed text-stone-600 dark:text-stone-400 break-words text-balance">
           Terjadi kesalahan saat menampilkan isi halaman ini. Klik tombol Coba
           lagi di bawah untuk memuat ulang bagian tersebut tanpa keluar dari
           halaman; kalau masalah tetap muncul, kembali ke beranda lalu buka

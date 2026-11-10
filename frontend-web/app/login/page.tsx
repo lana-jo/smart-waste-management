@@ -71,16 +71,16 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="max-w-md mx-auto pt-8 pb-12">
+    <div className="w-full max-w-md mx-auto pt-4 sm:pt-8 pb-12">
       <div className="text-center mb-8">
         <div className="w-12 h-12 rounded-2xl bg-emerald-700 text-white flex items-center justify-center mx-auto shadow-md mb-3">
           <Leaf size={24} />
         </div>
-        <h1 className="text-2xl font-bold tracking-tight text-stone-900 dark:text-stone-100">Masuk ke Portal</h1>
-        <p className="text-sm text-stone-600 dark:text-stone-400 mt-1">Sistem Pengelolaan Sampah Kota Terpadu</p>
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-stone-900 dark:text-stone-100 text-balance">Masuk ke Portal</h1>
+        <p className="text-sm text-stone-600 dark:text-stone-400 mt-1 text-balance">Sistem Pengelolaan Sampah Kota Terpadu</p>
       </div>
 
-      <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl p-6 sm:p-8 shadow-xs relative overflow-hidden">
+      <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl p-4 sm:p-8 shadow-xs relative overflow-hidden">
         <div className="absolute top-0 left-0 right-0 h-1.5 bg-emerald-700" />
 
         <form onSubmit={onSubmit} noValidate className="space-y-4">
@@ -98,7 +98,7 @@ export default function LoginPage() {
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               placeholder="nama@email.com"
-              className="w-full px-3.5 py-2.5 border border-stone-300 dark:border-stone-700 rounded-lg text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-emerald-700"
+              className="w-full min-h-11 px-3.5 py-2.5 border border-stone-300 dark:border-stone-700 rounded-lg text-base bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-emerald-700"
             />
           </div>
 
@@ -116,14 +116,14 @@ export default function LoginPage() {
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               placeholder="••••••••"
-              className="w-full px-3.5 py-2.5 border border-stone-300 dark:border-stone-700 rounded-lg text-sm bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-emerald-700"
+              className="w-full min-h-11 px-3.5 py-2.5 border border-stone-300 dark:border-stone-700 rounded-lg text-base bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-emerald-700"
             />
           </div>
 
           {error ? (
             <div role="alert" className="p-3.5 bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-300 rounded-lg text-sm font-medium flex items-center gap-2">
               <AlertCircle size={16} className="text-rose-600 dark:text-rose-400 shrink-0" />
-              <span>{error}</span>
+              <span className="break-words">{error}</span>
             </div>
           ) : null}
 
@@ -139,7 +139,7 @@ export default function LoginPage() {
 
         <p className="mt-6 text-center text-sm text-stone-600 dark:text-stone-400 pt-6 border-t border-stone-100 dark:border-stone-800">
           Belum punya akun?{" "}
-          <Link href="/register" className="font-semibold text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 transition-colors">
+          <Link href="/register" className="inline-flex min-h-[44px] items-center justify-center px-2 font-semibold text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 transition-colors focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-900 rounded-sm">
             Daftar di sini
           </Link>
         </p>

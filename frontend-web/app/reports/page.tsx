@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { RefreshCcw, AlertCircle, FileText, CheckCircle2, Loader2 } from "lucide-react";
 import { apiFetch } from "../lib/api";
 import { useAuth } from "../lib/auth-context";
-import { ReportTable, type ReportItem } from "./report-table";
+import { ReportTable } from "./report-table";
+import { type ReportItem } from "./report-status";
 import { ReportFilters } from "./report-filters";
 
 interface ReportPage {
@@ -89,7 +90,7 @@ export default function ReportsManagementPage() {
 
   if (error) {
     return (
-      <div className="max-w-md mx-auto mt-12 p-6 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl shadow-xs text-center space-y-4">
+      <div className="max-w-md mx-4 sm:mx-auto mt-12 p-6 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl shadow-xs text-center space-y-4">
         <div className="w-12 h-12 rounded-full bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center mx-auto">
           <AlertCircle size={24} />
         </div>
@@ -100,7 +101,7 @@ export default function ReportsManagementPage() {
         <button
           type="button"
           onClick={() => void loadReports()}
-          className="w-full px-4 py-2.5 rounded-lg bg-emerald-700 text-white text-sm font-medium hover:bg-emerald-800 transition-colors shadow-xs"
+          className="w-full min-h-11 px-4 py-2.5 rounded-lg bg-emerald-700 text-white text-sm font-medium hover:bg-emerald-800 transition-colors shadow-xs focus:outline-none focus:ring-2 focus:ring-emerald-700 focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2"
         >
           Coba Lagi
         </button>
@@ -115,11 +116,12 @@ export default function ReportsManagementPage() {
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-stone-900 dark:text-stone-100">Manajemen Laporan</h1>
           <p className="text-sm text-stone-600 dark:text-stone-400 mt-1">Daftar laporan warga, hasil klasifikasi AI, dan pembaruan status penanganan.</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 w-full sm:w-auto">
           <button
             type="button"
             onClick={() => void loadReports()}
-            className="flex items-center gap-2 px-3.5 py-2 border border-stone-300 dark:border-stone-700 rounded-lg text-sm font-medium text-stone-700 dark:text-stone-300 bg-white dark:bg-stone-900 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors shadow-xs"
+            disabled={loading}
+            className="w-full sm:w-auto justify-center min-h-11 flex items-center gap-2 px-3.5 py-2 border border-stone-300 dark:border-stone-700 rounded-lg text-sm font-medium text-stone-700 dark:text-stone-300 bg-white dark:bg-stone-900 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors shadow-xs focus:outline-none focus:ring-2 focus:ring-emerald-700 focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed"
           >
             <RefreshCcw size={16} />
             Segarkan
@@ -159,7 +161,7 @@ export default function ReportsManagementPage() {
       />
 
       {reports.length === 0 ? (
-        <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl p-12 text-center space-y-3">
+        <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl p-6 sm:p-12 text-center space-y-3">
           <div className="w-12 h-12 rounded-full bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400 flex items-center justify-center mx-auto">
             <FileText size={24} />
           </div>

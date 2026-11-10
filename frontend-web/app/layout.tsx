@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { AuthProvider } from "./lib/auth-context";
 import { ToastProvider } from "./components/toast";
 import { AppShell } from "./components/sidebar";
@@ -9,6 +9,12 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Smart Waste Management Portal",
   description: "Sistem Manajemen Pengelolaan Sampah Kota",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

@@ -37,23 +37,23 @@ export function AppShell({ children }: { children: ReactNode }) {
     if (isLandingPage) {
       return (
         <div className="min-h-screen flex flex-col bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 transition-colors">
-          <header className="border-b border-stone-200 dark:border-stone-800 bg-white/90 dark:bg-stone-950/90 backdrop-blur-md px-6 h-16 flex items-center justify-between sticky top-0 z-50">
-            <Link href="/" className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-emerald-700 flex items-center justify-center text-white shadow-sm">
+          <header className="border-b border-stone-200 dark:border-stone-800 bg-white/90 dark:bg-stone-950/90 backdrop-blur-md px-4 sm:px-6 h-16 flex items-center justify-between gap-2 sticky top-0 z-50">
+            <Link href="/" className="flex items-center gap-2.5 min-w-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700">
+              <div className="w-9 h-9 shrink-0 rounded-xl bg-emerald-700 flex items-center justify-center text-white shadow-sm">
                 <Leaf size={20} />
               </div>
-              <span className="font-bold tracking-tight text-stone-900 dark:text-stone-100 text-base sm:text-lg">
+              <span className="font-bold tracking-tight text-stone-900 dark:text-stone-100 text-[15px] sm:text-lg truncate">
                 Smart Waste
               </span>
             </Link>
-            <div className="flex items-center gap-3 text-sm font-medium">
+            <div className="flex items-center gap-1.5 sm:gap-3 text-sm font-medium shrink-0">
               <ThemeToggle />
-              <Link href="#features" className="hidden md:inline-block px-3 py-2 text-stone-600 dark:text-stone-400 hover:text-emerald-700">Fitur</Link>
-              <Link href="#download" className="hidden md:inline-block px-3 py-2 text-stone-600 dark:text-stone-400 hover:text-emerald-700">Download App</Link>
-              <Link href="/login" className="px-4 py-2 rounded-lg text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
+              <Link href="#features" className="hidden md:inline-flex items-center px-3 py-2 min-h-11 text-stone-600 dark:text-stone-400 hover:text-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700">Fitur</Link>
+              <Link href="#download" className="hidden md:inline-flex items-center px-3 py-2 min-h-11 text-stone-600 dark:text-stone-400 hover:text-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700">Download App</Link>
+              <Link href="/login" className="px-2.5 py-2 sm:px-4 min-h-11 inline-flex items-center rounded-lg text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700">
                 Masuk
               </Link>
-              <Link href="/register" className="bg-emerald-700 text-white px-4 py-2 rounded-lg hover:bg-emerald-800 transition-colors shadow-xs">
+              <Link href="/register" className="bg-emerald-700 text-white px-2.5 py-2 sm:px-4 min-h-11 inline-flex items-center rounded-lg hover:bg-emerald-800 transition-colors shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700">
                 Daftar
               </Link>
             </div>
@@ -76,21 +76,21 @@ export function AppShell({ children }: { children: ReactNode }) {
 
     return (
       <div className="min-h-screen flex flex-col bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 transition-colors">
-        <header className="border-b border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-emerald-700 flex items-center justify-center text-white shadow-sm">
+        <header className="border-b border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 px-4 sm:px-6 h-16 flex items-center justify-between gap-2">
+          <Link href="/" className="flex items-center gap-2.5 min-w-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700">
+            <div className="w-9 h-9 shrink-0 rounded-xl bg-emerald-700 flex items-center justify-center text-white shadow-sm">
               <Leaf size={20} />
             </div>
-            <span className="font-semibold tracking-tight text-stone-900 dark:text-stone-100 text-base sm:text-lg">
+            <span className="font-semibold tracking-tight text-stone-900 dark:text-stone-100 text-[15px] sm:text-lg truncate">
               Smart Waste Portal
             </span>
           </Link>
-          <div className="flex items-center gap-3 text-sm font-medium">
+          <div className="flex items-center gap-1.5 sm:gap-3 text-sm font-medium shrink-0">
             <ThemeToggle />
-            <Link href="/login" className="px-4 py-2 rounded-lg text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
+            <Link href="/login" className="px-2.5 py-2 sm:px-4 min-h-11 inline-flex items-center rounded-lg text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700">
               Masuk
             </Link>
-            <Link href="/register" className="bg-emerald-700 text-white px-4 py-2 rounded-lg hover:bg-emerald-800 transition-colors shadow-xs">
+            <Link href="/register" className="bg-emerald-700 text-white px-2.5 py-2 sm:px-4 min-h-11 inline-flex items-center rounded-lg hover:bg-emerald-800 transition-colors shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700">
               Daftar
             </Link>
           </div>
@@ -106,7 +106,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen flex bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 pb-16 lg:pb-0 transition-colors">
+    <div className="min-h-screen flex bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-0 transition-colors">
       {/* Desktop Sidebar */}
       <aside 
         className={`hidden lg:flex flex-col bg-white dark:bg-stone-900 border-r border-stone-200 dark:border-stone-800 fixed inset-y-0 z-30 transition-all duration-300 ease-in-out ${
@@ -118,13 +118,13 @@ export function AppShell({ children }: { children: ReactNode }) {
             <button
               type="button"
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-              className="p-1.5 rounded-lg text-stone-500 hover:bg-stone-100 dark:text-stone-400 dark:hover:bg-stone-800 transition-colors"
+              className="p-2 min-h-11 min-w-11 flex items-center justify-center rounded-lg text-stone-500 hover:bg-stone-100 dark:text-stone-400 dark:hover:bg-stone-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700"
               title={sidebarCollapsed ? "Perluas Sidebar" : "Kecilkan Sidebar"}
               aria-label={sidebarCollapsed ? "Perluas Sidebar" : "Kecilkan Sidebar"}
             >
               {sidebarCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
             </button>
-            <Link href="/dashboard" className="flex items-center gap-2.5">
+            <Link href="/dashboard" className="flex items-center gap-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700">
               <div className="w-9 h-9 rounded-xl bg-emerald-700 flex items-center justify-center text-white shadow-sm shrink-0">
                 <Leaf size={20} />
               </div>
@@ -152,7 +152,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <div className="w-8 h-8 rounded-lg bg-emerald-700 flex items-center justify-center text-white">
                 <Leaf size={18} />
               </div>
-              <span className="font-bold tracking-tight text-stone-900 dark:text-stone-100 text-sm">Smart Waste</span>
+              <span className="font-bold tracking-tight text-stone-900 dark:text-stone-100 text-sm truncate min-w-0">Smart Waste</span>
             </div>
           </div>
 
@@ -163,19 +163,19 @@ export function AppShell({ children }: { children: ReactNode }) {
               <button
                 type="button"
                 onClick={() => setDropdownOpen(!dropdownOpen)}
-                className="flex items-center gap-2 p-1.5 sm:px-3 sm:py-1.5 rounded-xl hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors text-sm font-medium text-stone-700 dark:text-stone-300 focus:outline-none focus:ring-2 focus:ring-emerald-700"
+                className="flex items-center gap-2 p-1.5 sm:px-3 sm:py-1.5 rounded-xl hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors text-sm font-medium text-stone-700 dark:text-stone-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700"
                 aria-expanded={dropdownOpen}
                 aria-haspopup="true"
               >
                 <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 flex items-center justify-center font-bold text-xs">
                   {user.name.charAt(0).toUpperCase()}
                 </div>
-                <span>{user.name}</span>
+                <span className="truncate max-w-[10rem]">{user.name}</span>
                 <ChevronDown size={14} className="text-stone-400" />
               </button>
 
               {dropdownOpen && (
-                <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl shadow-lg py-1.5 z-50 animate-in fade-in zoom-in-95 duration-150">
+                <div className="absolute right-0 mt-2 w-56 max-w-[calc(100vw-2rem)] bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl shadow-lg py-1.5 z-50 animate-menu-enter">
                   <div className="px-4 py-2 border-b border-stone-100 dark:border-stone-800">
                     <p className="text-sm font-semibold text-stone-900 dark:text-stone-100 truncate">{user.name}</p>
                     <p className="text-xs text-stone-500 dark:text-stone-400 truncate">{user.email}</p>
@@ -183,7 +183,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   <Link
                     href="/profile"
                     onClick={() => setDropdownOpen(false)}
-                    className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors"
+                    className="flex items-center gap-2.5 px-4 py-2.5 min-h-11 text-sm text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700"
                   >
                     <User size={16} className="text-stone-400" />
                     <span>Profil</span>
@@ -195,7 +195,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                       setDropdownOpen(false);
                       logout();
                     }}
-                    className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors text-left"
+                    className="w-full flex items-center gap-2.5 px-4 py-2.5 min-h-11 text-sm text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700"
                   >
                     <LogOut size={16} />
                     <span>Keluar</span>
@@ -215,7 +215,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           {children}
         </main>
 
-        <footer className="border-t border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 py-4 text-center text-xs text-stone-500 dark:text-stone-400 mb-16 lg:mb-0">
+        <footer className="border-t border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 pt-4 pb-4 text-center text-xs text-stone-500 dark:text-stone-400">
           Sistem Pengelolaan Sampah Terpadu — Bilcode Technology Assessment
         </footer>
       </div>

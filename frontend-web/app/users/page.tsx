@@ -2,20 +2,23 @@
 
 import { useEffect, useState, useSyncExternalStore, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { Users, UserPlus, AlertCircle, CheckCircle2 } from "lucide-react";
+import { UserPlus } from "lucide-react";
 import { apiFetch } from "../lib/api";
 import { subscribeUsers, getUsersSnapshot, reloadUsers, type UserItem } from "../lib/users-resource";
 import { useAuth } from "../lib/auth-context";
+import { useToast } from "../components/toast";
 import { UserModal } from "./user-modal";
 import { UserTable } from "./user-table";
 import { DeleteConfirmationModal } from "./delete-confirmation-modal";
 import { UserGuards } from "./user-guards";
 import { UserFilters } from "./user-filters";
 import { UserSearch } from "./user-search";
+import { UserEmptyState } from "./user-empty-state";
 
 export default function UserManagementPage() {
   const { user, token, role, isLoading: authLoading } = useAuth();
   const router = useRouter();
+  const { showToast } = useToast();
 
   const { status, users, error } = useSyncExternalStore(
     subscribeUsers,
@@ -23,9 +26,7 @@ export default function UserManagementPage() {
     getUsersSnapshot,
   );
 
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
-
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState<UserItem | null>(null);
 
@@ -70,20 +71,11 @@ export default function UserManagementPage() {
   const closeModal = () => {
     setShowModal(false);
     setEditingUser(null);
-    setSuccessMessage(null);
   };
-
-  useEffect(() => {
-    if (successMessage) {
-      const timer = setTimeout(() => setSuccessMessage(null), 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [successMessage]);
 
   const handleSaveUser = async (e: FormEvent) => {
     e.preventDefault();
     setActionError(null);
-    setSuccessMessage(null);
 
     const trimmedName = name.trim();
     const trimmedEmail = email.trim();
@@ -112,20 +104,23 @@ export default function UserManagementPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body),
         });
-        setSuccessMessage("Pengguna berhasil diperbarui.");
+        closeModal();
+        await reloadUsers(statusFilter !== "active");
+        showToast("success", "Pengguna berhasil diperbarui.");
       } else {
         await apiFetch("/api/users", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name: trimmedName, email: trimmedEmail, password, role: userRole }),
         });
-        setSuccessMessage("Pengguna baru berhasil ditambahkan.");
+        closeModal();
+        await reloadUsers(statusFilter !== "active");
+        showToast("success", "Pengguna baru berhasil ditambahkan.");
       }
-      closeModal();
-      await reloadUsers(statusFilter !== "active");
-      setSuccessMessage(editingUser ? "Pengguna berhasil diperbarui." : "Pengguna baru berhasil ditambahkan.");
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : "Gagal menyimpan data pengguna.");
+      const message = err instanceof Error ? err.message : "Gagal menyimpan data pengguna.";
+      setActionError(message);
+      showToast("error", message);
     } finally {
       setSubmitting(false);
     }
@@ -134,21 +129,19 @@ export default function UserManagementPage() {
   const handleDeleteUser = (userId: string, userName: string) => {
     setDeletingUser({ id: userId, name: userName });
     setActionError(null);
-    setSuccessMessage(null);
   };
 
   const confirmDeleteUser = async () => {
-    if (!deletingUser) return;
+    if (!deletingUser || isDeleting) return;
     setIsDeleting(true);
     setActionError(null);
-    setSuccessMessage(null);
     try {
       await apiFetch(`/api/users/${deletingUser.id}`, { method: "DELETE" });
-      setSuccessMessage("Pengguna berhasil dinonaktifkan.");
+      showToast("success", "Pengguna berhasil dinonaktifkan.");
       setDeletingUser(null);
       await reloadUsers(statusFilter !== "active");
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : "Gagal menghapus pengguna.");
+      showToast("error", err instanceof Error ? err.message : "Gagal menghapus pengguna.");
     } finally {
       setIsDeleting(false);
     }
@@ -160,7 +153,7 @@ export default function UserManagementPage() {
     usersCount: users.length,
     status,
     error,
-    onReload: () => void reloadUsers(),
+    onReload: () => void reloadUsers(statusFilter !== "active"),
   });
 
   if (guardResult) return guardResult;
@@ -168,14 +161,14 @@ export default function UserManagementPage() {
   const filteredUsers = users.filter((u) => {
     if (statusFilter === "active" && u.is_deleted) return false;
     if (statusFilter === "inactive" && !u.is_deleted) return false;
-    
+
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       const nameMatch = u.name.toLowerCase().includes(q);
       const emailMatch = u.email.toLowerCase().includes(q);
       if (!nameMatch && !emailMatch) return false;
     }
-    
+
     return true;
   });
 
@@ -186,45 +179,27 @@ export default function UserManagementPage() {
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-stone-900 dark:text-stone-100">Manajemen Pengguna</h1>
           <p className="text-sm text-stone-600 dark:text-stone-400 mt-1">Kelola akun pengguna, hak akses administrator, dan kredensial sistem.</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex w-full sm:w-auto items-center gap-3">
           <button
             type="button"
             onClick={openCreateModal}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-emerald-700 text-white text-sm font-medium hover:bg-emerald-800 transition-colors shadow-xs focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-950"
+            className="flex w-full sm:w-auto min-h-11 justify-center items-center gap-2 px-4 py-2.5 rounded-lg bg-emerald-700 text-white text-sm font-medium hover:bg-emerald-800 transition-colors shadow-xs focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-950"
           >
-            <UserPlus size={16} />
+            <UserPlus size={16} aria-hidden="true" />
             Tambah Pengguna
           </button>
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-4 items-center">
+      <div className="flex flex-col sm:flex-row sm:flex-wrap gap-4 sm:items-center">
         <UserSearch value={searchQuery} onChange={setSearchQuery} />
         <UserFilters currentFilter={statusFilter} onFilterChange={setStatusFilter} />
       </div>
 
-      {successMessage ? (
-        <div role="status" className="fixed top-20 right-4 z-50 p-4 bg-teal-50 dark:bg-teal-950/60 border border-teal-200 dark:border-teal-800 text-teal-800 dark:text-teal-300 rounded-lg text-sm font-medium flex items-center gap-2 shadow-lg animate-in slide-in-from-top-2">
-          <CheckCircle2 size={16} className="text-teal-700 dark:text-teal-400 shrink-0" />
-          <span>{successMessage}</span>
-        </div>
-      ) : null}
-      {actionError ? (
-        <div role="alert" className="fixed top-20 right-4 z-50 p-4 bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-300 rounded-lg text-sm font-medium flex items-center gap-2 shadow-lg animate-in slide-in-from-top-2">
-          <AlertCircle size={16} className="text-rose-600 dark:text-rose-400 shrink-0" />
-          <span>{actionError}</span>
-        </div>
-      ) : null}
-
       <UserTable users={filteredUsers} currentUserId={user?.id} onEdit={openEditModal} onDelete={handleDeleteUser} />
 
       {filteredUsers.length === 0 ? (
-        <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl p-12 text-center space-y-3">
-          <div className="w-12 h-12 rounded-full bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400 flex items-center justify-center mx-auto">
-            <Users size={24} />
-          </div>
-          <p className="text-base font-semibold text-stone-900 dark:text-stone-100">Belum ada pengguna terdaftar</p>
-        </div>
+        <UserEmptyState statusFilter={statusFilter} searchQuery={searchQuery} />
       ) : null}
 
       <UserModal

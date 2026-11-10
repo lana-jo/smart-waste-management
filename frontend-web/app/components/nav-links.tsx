@@ -18,9 +18,9 @@ export function NavLinks({ pathname, role, isCollapsed = false, onItemClick }: N
   ];
 
   return (
-    <div className="space-y-1.5">
+    <nav aria-label="Navigasi utama" className="space-y-1.5">
       {!isCollapsed && (
-        <p className="px-3 text-xs font-semibold text-stone-400 dark:text-stone-500 dark:text-stone-500 uppercase tracking-wider mb-3">
+        <p className="px-3 text-xs font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-wider mb-3">
           Menu Utama
         </p>
       )}
@@ -32,8 +32,10 @@ export function NavLinks({ pathname, role, isCollapsed = false, onItemClick }: N
             key={item.href}
             href={item.href}
             onClick={onItemClick}
+            aria-current={isActive ? "page" : undefined}
+            aria-label={isCollapsed ? item.label : undefined}
             title={isCollapsed ? item.label : undefined}
-            className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+            className={`flex items-center gap-3 px-3.5 py-2.5 min-h-11 rounded-xl text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700 ${
               isActive
                 ? "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 font-semibold shadow-xs"
                 : "text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-900 dark:hover:text-stone-100"
@@ -44,6 +46,6 @@ export function NavLinks({ pathname, role, isCollapsed = false, onItemClick }: N
           </Link>
         );
       })}
-    </div>
+    </nav>
   );
 }
