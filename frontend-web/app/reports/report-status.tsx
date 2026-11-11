@@ -12,8 +12,8 @@ export interface ReportItem {
   created_at: string;
   reporter_name: string;
   image_url: string;
-  latitude: number;
-  longitude: number;
+  latitude: number | null;
+  longitude: number | null;
 }
 
 export const REPORT_STATUS_OPTIONS = ["Pending", "In Progress", "Completed", "Rejected"];
@@ -44,4 +44,18 @@ export function ReportStatusBadge({ status, className = "" }: { status: string; 
 export function confidenceDisplay(confidence: number | null): string {
   if (confidence === null || !Number.isFinite(confidence)) return "—";
   return `${Math.round(confidence * 100)}%`;
+}
+
+export function coordinateDisplay(lat: number | null | undefined, lng: number | null | undefined, digits = 4): string {
+  if (lat === null || lat === undefined || !Number.isFinite(lat)) return "—";
+  if (lng === null || lng === undefined || !Number.isFinite(lng)) return "—";
+  return `${lat.toFixed(digits)}, ${lng.toFixed(digits)}`;
+}
+
+export function reporterDisplay(name: string): string {
+  return name || "Warga";
+}
+
+export function descriptionDisplay(description: string): string {
+  return description || "Tidak ada deskripsi.";
 }

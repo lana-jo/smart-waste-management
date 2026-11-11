@@ -2,7 +2,7 @@
 
 import { X } from "lucide-react";
 import { formatTime } from "../lib/format";
-import { confidenceDisplay, ReportStatusBadge, type ReportItem } from "./report-status";
+import { confidenceDisplay, coordinateDisplay, descriptionDisplay, reporterDisplay, ReportStatusBadge, type ReportItem } from "./report-status";
 import { ModalShell } from "../components/modal-shell";
 
 interface ReportImagePreviewProps {
@@ -47,7 +47,6 @@ interface ReportDetailProps {
 }
 
 export function ReportDetail({ report, onClose, onPreviewImage, escapeEnabled = true }: ReportDetailProps) {
-  const hasCoordinates = report.latitude !== undefined && report.longitude !== undefined;
   return (
     <ModalShell titleId="detail-title" onClose={onClose} escapeEnabled={escapeEnabled} dialogClassName="p-4 sm:p-6 max-w-xl w-full max-h-[90vh] overflow-y-auto">
       <div className="flex items-center justify-between pb-4 mb-4 border-b border-stone-100 dark:border-stone-800">
@@ -85,16 +84,16 @@ export function ReportDetail({ report, onClose, onPreviewImage, escapeEnabled = 
             <span className="text-xs font-medium text-stone-500 dark:text-stone-400 block">Status Penanganan</span><div className="mt-1"><ReportStatusBadge status={report.status} /></div>
           </div>
           <div className="p-3 rounded-lg bg-stone-50 dark:bg-stone-800/50 border border-stone-200/60 dark:border-stone-800">
-            <span className="text-xs font-medium text-stone-500 dark:text-stone-400 block">Pelapor</span><span className="text-sm font-medium text-stone-900 dark:text-stone-100 mt-1 block">{report.reporter_name || "Warga"}</span>
+            <span className="text-xs font-medium text-stone-500 dark:text-stone-400 block">Pelapor</span><span className="text-sm font-medium text-stone-900 dark:text-stone-100 mt-1 block">{reporterDisplay(report.reporter_name)}</span>
           </div>
         </div>
         <div className="p-3 rounded-lg bg-stone-50 dark:bg-stone-800/50 border border-stone-200/60 dark:border-stone-800">
           <span className="text-xs font-medium text-stone-500 dark:text-stone-400 block">Deskripsi</span>
-          <p className="text-sm text-stone-800 dark:text-stone-200 mt-1 whitespace-pre-wrap">{report.description || "Tidak ada deskripsi."}</p>
+          <p className="text-sm text-stone-800 dark:text-stone-200 mt-1 whitespace-pre-wrap">{descriptionDisplay(report.description)}</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="p-3 rounded-lg bg-stone-50 dark:bg-stone-800/50 border border-stone-200/60 dark:border-stone-800">
-            <span className="text-xs font-medium text-stone-500 dark:text-stone-400 block">Koordinat GPS</span><span className="text-xs font-mono text-stone-800 dark:text-stone-200 mt-1 block">{hasCoordinates ? `${report.latitude.toFixed(6)}, ${report.longitude.toFixed(6)}` : "—"}</span>
+            <span className="text-xs font-medium text-stone-500 dark:text-stone-400 block">Koordinat GPS</span><span className="text-xs font-mono text-stone-800 dark:text-stone-200 mt-1 block">{coordinateDisplay(report.latitude, report.longitude, 6)}</span>
           </div>
           <div className="p-3 rounded-lg bg-stone-50 dark:bg-stone-800/50 border border-stone-200/60 dark:border-stone-800">
             <span className="text-xs font-medium text-stone-500 dark:text-stone-400 block">Waktu Dibuat</span><span className="text-xs text-stone-800 dark:text-stone-200 mt-1 block">{formatTime(report.created_at)}</span>

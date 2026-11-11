@@ -145,7 +145,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </aside>
 
       {/* Main Content Layout with Top Header & Dropdown Profile / Keluar */}
-      <div className={`flex-1 flex flex-col transition-all duration-300 ease-in-out ${sidebarCollapsed ? "lg:pl-20" : "lg:pl-64"} pl-0`}>
+      <div className={`flex-1 min-w-0 flex flex-col transition-all duration-300 ease-in-out ${sidebarCollapsed ? "lg:pl-20" : "lg:pl-64"} pl-0`}>
         <header className="h-16 px-4 sm:px-6 bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800 sticky top-0 z-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2 lg:hidden">

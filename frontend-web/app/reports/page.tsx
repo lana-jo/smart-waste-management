@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { RefreshCcw, AlertCircle, FileText, CheckCircle2, Loader2 } from "lucide-react";
 import { apiFetch } from "../lib/api";
@@ -8,6 +8,8 @@ import { useAuth } from "../lib/auth-context";
 import { ReportTable } from "./report-table";
 import { type ReportItem } from "./report-status";
 import { ReportFilters } from "./report-filters";
+
+const REPORTS_PAGE_SIZE = 50;
 
 interface ReportPage {
   items: ReportItem[];
@@ -19,9 +21,13 @@ interface ReportPage {
 export default function ReportsManagementPage() {
   const { token, role, isLoading: authLoading } = useAuth();
   const router = useRouter();
+  const loadEpochRef = useRef(0);
   const [reports, setReports] = useState<ReportItem[]>([]);
+  const [totalReports, setTotalReports] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [moreError, setMoreError] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
@@ -34,21 +40,29 @@ export default function ReportsManagementPage() {
       router.push("/login");
       return;
     }
+    const epoch = ++loadEpochRef.current;
     setLoading(true);
     setError(null);
+    setMoreError(null);
+    setLoadingMore(false);
+    setStatusMessage(null);
+    setStatusError(null);
     try {
       const params = new URLSearchParams();
       if (filterStatus) params.set("status", filterStatus);
       if (search) params.set("search", search);
-      params.set("limit", "50");
+      params.set("limit", String(REPORTS_PAGE_SIZE));
       params.set("offset", "0");
 
       const data: ReportPage = await apiFetch<ReportPage>(`/api/reports?${params.toString()}`);
-      setReports(data.items);
+      if (epoch !== loadEpochRef.current) return;
+      setReports(data.items.slice(0, REPORTS_PAGE_SIZE));
+      setTotalReports(data.total);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Gagal memuat daftar laporan. Silakan coba lagi.");
+      if (epoch !== loadEpochRef.current) return;
+      setError(err instanceof Error ? err.message : "Gagal memuat daftar laporan. Periksa koneksi, lalu tekan tombolnya lagi.");
     } finally {
-      setLoading(false);
+      if (epoch === loadEpochRef.current) setLoading(false);
     }
   }, [token, filterStatus, search, router]);
 
@@ -57,6 +71,39 @@ export default function ReportsManagementPage() {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount; setState terjadi setelah await, bukan sinkron.
     void loadReports();
   }, [authLoading, loadReports]);
+
+  const loadReportsRef = useRef<() => Promise<void>>(loadReports);
+  useEffect(() => {
+    loadReportsRef.current = loadReports;
+  }, [loadReports]);
+
+  const loadMoreReports = useCallback(async () => {
+    if (!token || loading || loadingMore || reports.length >= totalReports) return;
+    const epoch = loadEpochRef.current;
+    setLoadingMore(true);
+    setMoreError(null);
+    try {
+      const params = new URLSearchParams();
+      if (filterStatus) params.set("status", filterStatus);
+      if (search) params.set("search", search);
+      params.set("limit", String(REPORTS_PAGE_SIZE));
+      params.set("offset", String(reports.length));
+
+      const data: ReportPage = await apiFetch<ReportPage>(`/api/reports?${params.toString()}`);
+      if (epoch !== loadEpochRef.current) return;
+      setReports((current) => {
+        const seenIds = new Set(current.map((item) => item.id));
+        const freshItems = data.items.filter((item) => !seenIds.has(item.id));
+        return [...current, ...freshItems.slice(0, REPORTS_PAGE_SIZE)];
+      });
+      setTotalReports(data.total);
+    } catch (err) {
+      if (epoch !== loadEpochRef.current) return;
+      setMoreError(err instanceof Error ? err.message : "Gagal memuat laporan tambahan. Periksa koneksi, lalu tekan tombolnya lagi.");
+    } finally {
+      if (epoch === loadEpochRef.current) setLoadingMore(false);
+    }
+  }, [token, filterStatus, search, loading, loadingMore, reports.length, totalReports]);
 
   const handleStatusChange = async (reportId: string, status: string) => {
     setUpdatingId(reportId);
@@ -69,15 +116,16 @@ export default function ReportsManagementPage() {
         body: JSON.stringify({ status }),
       });
       setStatusMessage("Status laporan berhasil diperbarui.");
-      await loadReports();
+      await loadReportsRef.current();
     } catch (err) {
-      setStatusError(err instanceof Error ? err.message : "Gagal memperbarui status laporan. Silakan coba lagi.");
+      setStatusError(err instanceof Error ? err.message : "Gagal memperbarui status laporan. Periksa koneksi, lalu pilih statusnya lagi.");
     } finally {
       setUpdatingId(null);
     }
   };
 
   const isAdmin = role === "admin";
+  const hasMoreReports = reports.length < totalReports;
 
   if (authLoading || (loading && reports.length === 0)) {
     return (
@@ -101,7 +149,7 @@ export default function ReportsManagementPage() {
         <button
           type="button"
           onClick={() => void loadReports()}
-          className="w-full min-h-11 px-4 py-2.5 rounded-lg bg-emerald-700 text-white text-sm font-medium hover:bg-emerald-800 transition-colors shadow-xs focus:outline-none focus:ring-2 focus:ring-emerald-700 focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2"
+          className="w-full min-h-11 px-4 py-2.5 rounded-lg bg-emerald-700 text-white text-sm font-medium hover:bg-emerald-800 transition-colors shadow-xs focus:outline-none focus:ring-2 focus:ring-emerald-700 focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2 dark:ring-offset-stone-900"
         >
           Coba Lagi
         </button>
@@ -121,9 +169,9 @@ export default function ReportsManagementPage() {
             type="button"
             onClick={() => void loadReports()}
             disabled={loading}
-            className="w-full sm:w-auto justify-center min-h-11 flex items-center gap-2 px-3.5 py-2 border border-stone-300 dark:border-stone-700 rounded-lg text-sm font-medium text-stone-700 dark:text-stone-300 bg-white dark:bg-stone-900 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors shadow-xs focus:outline-none focus:ring-2 focus:ring-emerald-700 focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full sm:w-auto justify-center min-h-11 flex items-center gap-2 px-3.5 py-2 border border-stone-300 dark:border-stone-700 rounded-lg text-sm font-medium text-stone-700 dark:text-stone-300 bg-white dark:bg-stone-900 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors shadow-xs focus:outline-none focus:ring-2 focus:ring-emerald-700 focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2 dark:ring-offset-stone-900 disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            <RefreshCcw size={16} />
+            {loading ? <Loader2 size={16} className="animate-spin" aria-hidden="true" /> : <RefreshCcw size={16} aria-hidden="true" />}
             Segarkan
           </button>
         </div>
@@ -153,15 +201,37 @@ export default function ReportsManagementPage() {
         </div>
       ) : null}
 
+      {reports.length > 0 ? (
+        <p className="text-sm text-stone-600 dark:text-stone-400" aria-live="polite">
+          Menampilkan {reports.length} dari {totalReports} laporan
+        </p>
+      ) : null}
+
       <ReportTable
         reports={reports}
         isAdmin={isAdmin}
         updatingId={updatingId}
+        loading={loading}
         onStatusChange={handleStatusChange}
       />
 
+      {reports.length > 0 && hasMoreReports ? (
+        <div className="flex flex-col items-center gap-2">
+          <button
+            type="button"
+            onClick={() => void loadMoreReports()}
+            aria-disabled={loadingMore}
+            className={`min-h-11 inline-flex items-center gap-2 px-4 py-2 border border-stone-300 dark:border-stone-700 rounded-lg text-sm font-medium text-stone-700 dark:text-stone-300 bg-white dark:bg-stone-900 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors shadow-xs focus:outline-none focus:ring-2 focus:ring-emerald-700 focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2 dark:ring-offset-stone-900${loadingMore ? " opacity-60" : ""}`}
+          >
+            {loadingMore ? <Loader2 size={16} className="animate-spin" aria-hidden="true" /> : null}
+            Muat lebih banyak
+          </button>
+          {moreError ? <p role="alert" className="text-sm text-rose-600 dark:text-rose-400">{moreError}</p> : null}
+        </div>
+      ) : null}
+
       {reports.length === 0 ? (
-        <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl p-6 sm:p-12 text-center space-y-3">
+        <div role="status" className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl p-6 sm:p-12 text-center space-y-3">
           <div className="w-12 h-12 rounded-full bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400 flex items-center justify-center mx-auto">
             <FileText size={24} />
           </div>

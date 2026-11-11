@@ -33,12 +33,12 @@ export function ReportFilters({
             value={searchInput}
             onChange={(event) => setSearchInput(event.target.value)}
             placeholder="Cari laporan..."
-            className="w-full min-h-11 pl-9 pr-3 py-2 border border-stone-300 dark:border-stone-700 rounded-lg text-sm sm:text-base bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:border-transparent"
+            className="w-full min-h-11 pl-9 pr-3 py-2 border border-stone-300 dark:border-stone-700 rounded-lg text-sm sm:text-base bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 placeholder-stone-500 dark:placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:border-transparent"
           />
         </div>
         <button
           type="submit"
-          className="min-h-11 px-4 py-2 rounded-lg bg-emerald-700 text-white text-sm font-medium hover:bg-emerald-800 transition-colors shadow-xs shrink-0 focus:outline-none focus:ring-2 focus:ring-emerald-700 focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2"
+          className="min-h-11 px-4 py-2 rounded-lg bg-emerald-700 text-white text-sm font-medium hover:bg-emerald-800 transition-colors shadow-xs shrink-0 focus:outline-none focus:ring-2 focus:ring-emerald-700 focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2 dark:ring-offset-stone-900"
         >
           Cari
         </button>
@@ -51,7 +51,7 @@ export function ReportFilters({
           id="report-status-filter"
           value={filterStatus}
           onChange={(event: ChangeEvent<HTMLSelectElement>) => setFilterStatus(event.target.value)}
-          className="w-full sm:w-auto min-h-11 px-3.5 py-2 border border-stone-300 dark:border-stone-700 rounded-lg text-base bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:border-transparent focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2"
+          className="w-full sm:w-auto min-h-11 px-3.5 py-2 border border-stone-300 dark:border-stone-700 rounded-lg text-base bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:border-transparent focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2 dark:ring-offset-stone-900"
         >
           {STATUS_OPTIONS.map((option) => (
             <option key={option} value={option}>
