@@ -95,8 +95,8 @@ Sistem pelaporan & klasifikasi sampah berbasis AI end-to-end: user mengirim foto
 
 | Peran | Email | Password |
 |---|---|---|
-| Admin | admin@bilcode.id | password123 |
-| User | user@bilcode.id | password123 |
+| Admin | admin@example.com | password123 |
+| User | user@example.com | password123 |
 
 ## Cloudflare Tunnel & Production
 - Domain Web: `smart-waste.latech.web.id`

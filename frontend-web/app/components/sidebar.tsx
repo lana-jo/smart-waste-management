@@ -216,7 +216,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </main>
 
         <footer className="border-t border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 pt-4 pb-4 text-center text-xs text-stone-500 dark:text-stone-400">
-          Sistem Pengelolaan Sampah Terpadu — Bilcode Technology Assessment
+          Sistem Pengelolaan Sampah Terpadu — Smart Waste Management
         </footer>
       </div>
 

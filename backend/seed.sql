@@ -7,8 +7,8 @@
 \if :{?admin_seed_password}
 INSERT INTO users (id, name, email, password_hash, role)
 VALUES
-    ('11111111-1111-1111-1111-111111111111', 'Admin Bilcode', 'admin@bilcode.id', crypt(:'admin_seed_password', gen_salt('bf')), 'admin'),
-    ('22222222-2222-2222-2222-222222222222', 'Pengguna Demo', 'user@bilcode.id', crypt(:'demo_seed_password', gen_salt('bf')), 'user')
+    ('11111111-1111-1111-1111-111111111111', 'Admin Demo', 'admin@example.com', crypt(:'admin_seed_password', gen_salt('bf')), 'admin'),
+    ('22222222-2222-2222-2222-222222222222', 'Pengguna Demo', 'user@example.com', crypt(:'demo_seed_password', gen_salt('bf')), 'user')
 ON CONFLICT (email) DO NOTHING;
 \else
 \echo 'seed: admin_seed_password/demo_seed_password tidak diisi; blok user dilewati.'
